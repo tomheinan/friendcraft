@@ -1,0 +1,14 @@
+name: FriendCore
+version: "${project.version}"
+main: com.tomheinan.friendcore.FriendCore
+#commands:
+depend: []
+softdepend: []
+database: false
+website: "http://tomheinan.com"
+description: ""
+author: "Tom Heinan"
+authors:
+  - "Tom Heinan"
+load: postworld
+#permissions:

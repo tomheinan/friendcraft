@@ -1,0 +1,13 @@
+FriendCore
+==========
+
+Description:
+------------
+
+
+Features:
+---------
+
+
+Permissions:
+------------
