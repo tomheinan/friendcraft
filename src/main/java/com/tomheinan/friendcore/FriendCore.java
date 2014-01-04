@@ -3,17 +3,19 @@ package com.tomheinan.friendcore;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.Server;
+import org.eclipse.jetty.server.Server;
 
 public class FriendCore extends JavaPlugin
 {
     protected static Logger logger = null;
     public static boolean debugMode = false;
     
-    protected Server server;
+    protected org.bukkit.Server bukkitServer;
+    protected org.eclipse.jetty.server.Server webServer;
     protected PluginManager pm;
     protected FriendCoreConfiguration config;
     protected File dataFolder;
@@ -25,8 +27,8 @@ public class FriendCore extends JavaPlugin
     public void onEnable()
     {
         logger = this.getLogger();
-        this.server = this.getServer();
-        this.pm = this.server.getPluginManager();
+        this.bukkitServer = this.getServer();
+        this.pm = this.bukkitServer.getPluginManager();
         this.dataFolder = this.getDataFolder();
 
         this.dataFolder.mkdirs();
@@ -39,6 +41,15 @@ public class FriendCore extends JavaPlugin
         this.saveConfig();
 
         log("Version " + this.getDescription().getVersion() + " enabled");
+        
+        this.webServer = new Server(25566);
+        this.webServer.setHandler(new FriendCoreWebHandler());
+        try {
+            this.webServer.start();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     public void onDisable()
