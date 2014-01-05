@@ -4,9 +4,11 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.websocket.DeploymentException;
 import javax.websocket.server.ServerContainer;
 
 import org.bukkit.configuration.Configuration;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Server;
@@ -21,9 +23,8 @@ public class FriendCore extends JavaPlugin
     
     protected org.bukkit.Server bukkitServer;
     protected org.eclipse.jetty.server.Server webServer;
-    protected PluginManager pm;
-    protected FriendCoreConfiguration config;
     protected File dataFolder;
+    protected EventListener eventListener;
 
     public FriendCore()
     {
@@ -33,7 +34,6 @@ public class FriendCore extends JavaPlugin
     {
         logger = this.getLogger();
         this.bukkitServer = this.getServer();
-        this.pm = this.bukkitServer.getPluginManager();
         this.dataFolder = this.getDataFolder();
         this.dataFolder.mkdirs();
         
@@ -42,27 +42,35 @@ public class FriendCore extends JavaPlugin
         configuration.options().copyDefaults(true);
         debugMode = configuration.getBoolean("debug");
         int port = configuration.getInt("port", 25566);
-        this.config = new FriendCoreConfiguration(configuration);
         this.saveConfig();
         
-        // initialize WebSocket server
-        this.webServer = new Server();
-        ServerConnector connector = new ServerConnector(this.webServer);
-        connector.setPort(port);
-        this.webServer.addConnector(connector);
-        
-        // setup the basic application "context" at "/"
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
-        this.webServer.setHandler(context);
-        
-        try {
+        // configure web server
+        if (this.webServer == null) {
+            this.webServer = new Server();
+            
+            // initialize WebSocket server
+            ServerConnector connector = new ServerConnector(this.webServer);
+            connector.setPort(port);
+            this.webServer.addConnector(connector);
+            
+            // setup the basic application "context" at "/"
+            ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            context.setContextPath("/");
+            this.webServer.setHandler(context);
+            
             // initialize javax.websocket layer
             ServerContainer wscontainer = WebSocketServerContainerInitializer.configureContext(context);
             
             // add WebSocket endpoint to javax.websocket layer
-            wscontainer.addEndpoint(FriendCoreSocket.class);
-            
+            try {
+                wscontainer.addEndpoint(FriendCoreSocket.class);
+            } catch (DeploymentException e) {
+                error("Unable to establish WebSocket endpoint", e);
+            }
+        }
+        
+        // start web server
+        try {
             log("Starting WebSocket server");
             this.webServer.start();
             log("Listening for incoming connections on port " + Integer.toString(port));
@@ -70,10 +78,17 @@ public class FriendCore extends JavaPlugin
         } catch (Exception e) {
             error("Unable to start WebSocket server on port " + Integer.toString(port), e);
         }
+        
+        // register for bukkit events
+        if (this.eventListener == null) { this.eventListener = new EventListener(); }
+        this.bukkitServer.getPluginManager().registerEvents(this.eventListener, this);
     }
 
     public void onDisable()
     {
+        // unregister events
+        HandlerList.unregisterAll(this.eventListener);
+        
         try {
             log("Stopping WebSocket server");
             this.webServer.stop();

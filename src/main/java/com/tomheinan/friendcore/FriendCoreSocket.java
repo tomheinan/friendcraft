@@ -14,25 +14,25 @@ import javax.websocket.server.ServerEndpoint;
 public class FriendCoreSocket
 {
     @OnOpen
-    public void onWebSocketConnect(Session session)
+    public void onOpen(Session session)
     {
         FriendCore.log("Socket Connected: " + session);
     }
     
     @OnMessage
-    public void onWebSocketText(String message)
+    public void onMessage(String message)
     {
         FriendCore.log("Received TEXT message: " + message);
     }
     
     @OnClose
-    public void onWebSocketClose(CloseReason reason)
+    public void onClose(CloseReason reason)
     {
         FriendCore.log("Socket Closed: " + reason);
     }
     
     @OnError
-    public void onWebSocketError(Throwable cause)
+    public void onError(Throwable cause)
     {
         FriendCore.error("Socket error", cause);
     }
