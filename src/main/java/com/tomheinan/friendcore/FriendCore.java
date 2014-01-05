@@ -4,13 +4,15 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.websocket.server.ServerContainer;
+
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
 public class FriendCore extends JavaPlugin
 {
@@ -33,7 +35,6 @@ public class FriendCore extends JavaPlugin
         this.bukkitServer = this.getServer();
         this.pm = this.bukkitServer.getPluginManager();
         this.dataFolder = this.getDataFolder();
-
         this.dataFolder.mkdirs();
         
         // plugin configuration shenanigans
@@ -55,11 +56,13 @@ public class FriendCore extends JavaPlugin
         context.setContextPath("/");
         this.webServer.setHandler(context);
         
-        // add a websocket to a specific path spec
-        ServletHolder holder = new ServletHolder("ws-events", FriendCoreServlet.class);
-        context.addServlet(holder, "/*");
-        
         try {
+            // initialize javax.websocket layer
+            ServerContainer wscontainer = WebSocketServerContainerInitializer.configureContext(context);
+            
+            // add WebSocket endpoint to javax.websocket layer
+            wscontainer.addEndpoint(FriendCoreSocket.class);
+            
             log("Starting WebSocket server");
             this.webServer.start();
             log("Listening for incoming connections on port " + Integer.toString(port));

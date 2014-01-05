@@ -1,35 +1,39 @@
 package com.tomheinan.friendcore;
 
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketAdapter;
+import javax.websocket.ClientEndpoint;
+import javax.websocket.CloseReason;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnMessage;
+import javax.websocket.OnOpen;
+import javax.websocket.Session;
+import javax.websocket.server.ServerEndpoint;
 
-public class FriendCoreSocket extends WebSocketAdapter
+@ClientEndpoint
+@ServerEndpoint(value="/")
+public class FriendCoreSocket
 {
-    @Override
+    @OnOpen
     public void onWebSocketConnect(Session session)
     {
-        super.onWebSocketConnect(session);
         FriendCore.log("Socket Connected: " + session);
     }
     
-    @Override
+    @OnMessage
     public void onWebSocketText(String message)
     {
-        super.onWebSocketText(message);
         FriendCore.log("Received TEXT message: " + message);
     }
     
-    @Override
-    public void onWebSocketClose(int statusCode, String reason)
+    @OnClose
+    public void onWebSocketClose(CloseReason reason)
     {
-        super.onWebSocketClose(statusCode,reason);
-        FriendCore.log("Socket Closed: [" + statusCode + "] " + reason);
+        FriendCore.log("Socket Closed: " + reason);
     }
     
-    @Override
+    @OnError
     public void onWebSocketError(Throwable cause)
     {
-        super.onWebSocketError(cause);
-        FriendCore.error("Socket error:", cause);
+        FriendCore.error("Socket error", cause);
     }
 }

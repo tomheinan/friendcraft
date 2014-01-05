@@ -72,6 +72,7 @@
   <properties>
     <jettyVersion>9.1.0.v20131115</jettyVersion>
     <bukkitVersion>1.7.2-R0.2</bukkitVersion>
+    <javaxVersion>1.0</javaxVersion>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 </project>

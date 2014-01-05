@@ -13,6 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <bukkitVersion>1.7.2-R0.2</bukkitVersion>
         <jettyVersion>9.1.0.v20131115</jettyVersion>
+        <javaxVersion>1.0</javaxVersion>
     </properties>
   
     <repositories>
@@ -39,13 +40,13 @@
             <version>${jettyVersion}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-servlet</artifactId>
-            <version>${jettyVersion}</version>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>${javaxVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-api</artifactId>
+            <artifactId>javax-websocket-server-impl</artifactId>
             <version>${jettyVersion}</version>
         </dependency>
     </dependencies>
