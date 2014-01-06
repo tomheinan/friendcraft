@@ -74,6 +74,7 @@
     <bukkitVersion>1.7.2-R0.2</bukkitVersion>
     <javaxVersion>1.0</javaxVersion>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <gsonVersion>2.2.4</gsonVersion>
   </properties>
 </project>
 

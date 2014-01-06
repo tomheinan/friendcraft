@@ -1,15 +1,17 @@
 package com.tomheinan.friendcore;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.websocket.DeploymentException;
+import javax.websocket.Session;
 import javax.websocket.server.ServerContainer;
 
 import org.bukkit.configuration.Configuration;
 import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -18,17 +20,14 @@ import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainer
 
 public class FriendCore extends JavaPlugin
 {
-    protected static Logger logger = null;
     public static boolean debugMode = false;
+    protected static Logger logger = null;
+    protected static final Set<Session> sessions = new HashSet<Session>();
     
     protected org.bukkit.Server bukkitServer;
     protected org.eclipse.jetty.server.Server webServer;
     protected File dataFolder;
     protected EventListener eventListener;
-
-    public FriendCore()
-    {
-    }
 
     public void onEnable()
     {
@@ -95,6 +94,8 @@ public class FriendCore extends JavaPlugin
         } catch (Exception e) {
             error("Unable to stop WebSocket server normally", e);
         }
+        
+        sessions.clear();
         
         log("Version " + this.getDescription().getVersion() + " disabled");
     }

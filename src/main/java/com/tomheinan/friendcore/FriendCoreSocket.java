@@ -16,23 +16,26 @@ public class FriendCoreSocket
     @OnOpen
     public void onOpen(Session session)
     {
-        FriendCore.log("Socket Connected: " + session);
+        FriendCore.sessions.add(session);
+        FriendCore.log("session properties:" + session.getUserProperties().toString());
+        FriendCore.log(Integer.toString(FriendCore.sessions.size()));
     }
     
     @OnMessage
-    public void onMessage(String message)
+    public void onMessage(Session session, String message)
     {
         FriendCore.log("Received TEXT message: " + message);
     }
     
     @OnClose
-    public void onClose(CloseReason reason)
+    public void onClose(Session session, CloseReason reason)
     {
-        FriendCore.log("Socket Closed: " + reason);
+        FriendCore.sessions.remove(session);
+        FriendCore.log(Integer.toString(FriendCore.sessions.size()));
     }
     
     @OnError
-    public void onError(Throwable cause)
+    public void onError(Session session, Throwable cause)
     {
         FriendCore.error("Socket error", cause);
     }
