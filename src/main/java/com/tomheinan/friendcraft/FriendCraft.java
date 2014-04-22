@@ -11,6 +11,11 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+
 public class FriendCraft extends JavaPlugin
 {
     public static boolean debugMode = false;
@@ -37,6 +42,23 @@ public class FriendCraft extends JavaPlugin
         // register for bukkit events
         if (this.eventListener == null) { this.eventListener = new EventListener(); }
         this.server.getPluginManager().registerEvents(this.eventListener, this);
+        
+        // firebase stuff
+        Firebase ref = new Firebase("https://friendcraft.firebaseio.com/");
+        ref.setValue("testing 123");
+        
+        // Read data and react to changes
+        ref.addValueEventListener(new ValueEventListener() {
+            
+            public void onDataChange(DataSnapshot snap) {
+                logger.info(snap.getName() + " -> " + snap.getValue());
+            }
+            
+            public void onCancelled(FirebaseError error) {
+                // TODO Auto-generated method stub
+            }
+            
+        });
     }
 
     public void onDisable()
