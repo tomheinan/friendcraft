@@ -1,4 +1,4 @@
-FriendCore
+FriendCraft
 ==========
 
 Description:

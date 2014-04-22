@@ -1,4 +1,4 @@
-package com.tomheinan.friendcore.message;
+package com.tomheinan.friendcraft.message;
 
 public class Message
 {

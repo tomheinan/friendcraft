@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.tomheinan.friendcore</groupId>
-  <artifactId>FriendCore</artifactId>
-  <name>FriendCore</name>
+  <groupId>com.tomheinan.friendcraft</groupId>
+  <artifactId>FriendCraft</artifactId>
+  <name>FriendCraft</name>
   <version>1.0-SNAPSHOT</version>
   <url>http://tomheinan.com</url>
   <build>
@@ -70,7 +70,6 @@
     </dependency>
   </dependencies>
   <properties>
-    <jettyVersion>9.1.0.v20131115</jettyVersion>
     <bukkitVersion>1.7.2-R0.2</bukkitVersion>
     <javaxVersion>1.0</javaxVersion>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

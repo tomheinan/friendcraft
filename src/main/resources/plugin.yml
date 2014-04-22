@@ -1,6 +1,6 @@
-name: FriendCore
+name: FriendCraft
 version: "${project.version}"
-main: com.tomheinan.friendcore.FriendCore
+main: com.tomheinan.friendcraft.FriendCraft
 #commands:
 depend: []
 softdepend: []
