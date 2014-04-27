@@ -12,8 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <bukkitVersion>1.7.2-R0.2</bukkitVersion>
-        <javaxVersion>1.0</javaxVersion>
-        <gsonVersion>2.2.4</gsonVersion>
+        <firebaseVersion>[1.0.7,)</firebaseVersion>
     </properties>
   
     <repositories>
@@ -32,12 +31,7 @@
         <dependency>
             <groupId>com.firebase</groupId>
             <artifactId>firebase-client</artifactId>
-            <version>[1.0.7,)</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gsonVersion}</version>
+            <version>${firebaseVersion}</version>
         </dependency>
     </dependencies>
 
@@ -87,7 +81,7 @@
                                      <exclude>org.bukkit:*</exclude>
                                 </excludes>
                             </artifactSet>
-                            <minimizeJar>true</minimizeJar>
+                            <minimizeJar>false</minimizeJar>
                         </configuration>
                     </execution>
                 </executions>

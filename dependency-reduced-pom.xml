@@ -48,7 +48,7 @@
                   <exclude>org.bukkit:*</exclude>
                 </excludes>
               </artifactSet>
-              <minimizeJar>true</minimizeJar>
+              <minimizeJar>false</minimizeJar>
             </configuration>
           </execution>
         </executions>
@@ -71,9 +71,8 @@
   </dependencies>
   <properties>
     <bukkitVersion>1.7.2-R0.2</bukkitVersion>
-    <javaxVersion>1.0</javaxVersion>
+    <firebaseVersion>[1.0.7,)</firebaseVersion>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <gsonVersion>2.2.4</gsonVersion>
   </properties>
 </project>
 
