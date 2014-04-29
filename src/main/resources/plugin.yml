@@ -1,7 +1,12 @@
 name: FriendCraft
 version: "${project.version}"
 main: com.tomheinan.friendcraft.FriendCraft
-#commands:
+commands:
+  fc:
+    description: The primary command interface to FriendCraft
+    usage: 'Available commands: add <player>, remove <player>, list. See "/fc help command" for details.'
+    permission: friendcraft.fc
+    permission-message: You don't have permission to use FriendCraft
 depend: []
 softdepend: []
 database: false

@@ -32,6 +32,7 @@ public class FriendCraft extends JavaPlugin
     //public static String authRoot = "https://friendcraft.io"; // production
     public static String authRoot = "http://localhost:3000"; // development
     
+    protected static Configuration configuration;
     protected static Logger logger = null;
     
     protected Server server;
@@ -47,7 +48,7 @@ public class FriendCraft extends JavaPlugin
         this.dataFolder.mkdirs();
         
         // plugin configuration shenanigans
-        Configuration configuration = this.getConfig();
+        configuration = this.getConfig();
         configuration.options().copyDefaults(true);
         this.saveConfig();
         
@@ -128,6 +129,9 @@ public class FriendCraft extends JavaPlugin
                 if (eventListener == null) { eventListener = new EventListener(); }
                 server.getPluginManager().registerEvents(eventListener, FriendCraft.this);
                 
+                // link commands to their executors
+                getCommand("fc").setExecutor(new PrimaryCommandExecutor());
+                
                 log("Version " + getDescription().getVersion() + " enabled");
             }
             
@@ -136,7 +140,7 @@ public class FriendCraft extends JavaPlugin
 
     public void onDisable()
     {
-        // unregister events
+        // deregister events
         HandlerList.unregisterAll(eventListener);
         
         // disconnect from firebase
