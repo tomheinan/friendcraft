@@ -29,76 +29,104 @@ public class PrimaryCommandExecutor implements CommandExecutor
                     String item = args[1];
                     
                     if (item.equalsIgnoreCase("add")) {
-                        currentPlayer.sendMessage(new String[]{"Adds a player to your friend list", "Usage: /fc add <player name>"});
+                        currentPlayer.sendMessage(new String[]{"Adds a player to your friends list", "Usage: /fc add <player name>"});
                         return true;
                     } else if (item.equalsIgnoreCase("remove")) {
-                        currentPlayer.sendMessage(new String[]{"Removes a player from your friend list", "Usage: /fc remove <player name>"});
+                        currentPlayer.sendMessage(new String[]{"Removes a player from your friends list", "Usage: /fc remove <player name>"});
                         return true;
                     } else if (item.equalsIgnoreCase("list")) {
                         currentPlayer.sendMessage(new String[]{"Lists your friends", "Usage: /fc list"});
                         return true;
                     }
                 } else if (action.equalsIgnoreCase("add") && args.length > 1) {
-                    final String name = args[1];
+                    final String friendName = args[1];
+                    final Firebase playerIdFromNameRef = new Firebase(FriendCraft.firebaseRoot + "/index/players/by-name/" + friendName.toLowerCase());
                     
-                    Firebase playersRef = new Firebase(FriendCraft.firebaseRoot + "/players");
-                    playersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    // find the friend by his/her name from the index
+                    playerIdFromNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
 
                         public void onCancelled(FirebaseError error) {
-                            // TODO Auto-generated method stub
+                            FriendCraft.error(error.getMessage());
                         }
 
                         public void onDataChange(DataSnapshot snap) {
-                            String otherPlayerName = null;
-                            String otherPlayerId = null;
-                            boolean found = false;
-                            for (DataSnapshot otherPlayer : snap.getChildren()) {
-                                otherPlayerName = (String) otherPlayer.child("name").getValue();
-                                if (otherPlayerName != null && otherPlayerName.equalsIgnoreCase(name)) {
-                                    otherPlayerId = (String) otherPlayer.getName();
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            
-                            if (found) {
-                                final String foundPlayerName = otherPlayerName;
-                                Firebase currentPlayerFriendsRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + currentPlayer.getUniqueId().toString() + "/friends");
-                                currentPlayerFriendsRef.child(otherPlayerId).setValue(Boolean.TRUE, new Firebase.CompletionListener() {
-                                    
-                                    public void onComplete(FirebaseError error, Firebase ref) {
-                                        // TODO check for error here
-                                        currentPlayer.sendMessage("Added " + foundPlayerName + " to your friend list");
-                                    }
-                                    
-                                });
+                            if (snap.getValue() == null) {
+                                currentPlayer.sendMessage("Player \"" + friendName + "\" not found.");
                             } else {
-                                currentPlayer.sendMessage("Couldn't find a player named \"" + name + "\"");
+                                final String friendId = (String) snap.getValue();
+                                final Firebase friendNameRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + friendId + "/name");
+                                
+                                // get the friend's official name
+                                friendNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                    public void onCancelled(FirebaseError error) {
+                                        FriendCraft.error(error.getMessage());
+                                    }
+
+                                    public void onDataChange(DataSnapshot snap) {
+                                        // save the friend's ID to the current player's friends list
+                                        // and confirm with the official name
+                                        final String officialFriendName = (String) snap.getValue();
+                                        final Firebase friendsListRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + currentPlayer.getUniqueId().toString() + "/friends");
+                                        
+                                        friendsListRef.child(friendId).setValue(Boolean.TRUE, new Firebase.CompletionListener() {
+                                            
+                                            public void onComplete(FirebaseError error, Firebase ref) {
+                                                currentPlayer.sendMessage("Added " + officialFriendName + " to your friends list.");
+                                            }
+                                        });
+                                    }
+                                });
                             }
                         }
-                        
                     });
                     
                     return true;
                     
                 } else if (action.equalsIgnoreCase("remove") && args.length > 1) {
-                    final String name = args[1];
+                    final String friendName = args[1];
+                    final Firebase playerIdFromNameRef = new Firebase(FriendCraft.firebaseRoot + "/index/players/by-name/" + friendName.toLowerCase());
                     
-                    Firebase currentPlayerFriendsRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + currentPlayer.getUniqueId().toString() + "/friends");
-                    currentPlayerFriendsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    // find the friend by his/her name from the index
+                    playerIdFromNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
 
                         public void onCancelled(FirebaseError error) {
-                            // TODO Auto-generated method stub
+                            FriendCraft.error(error.getMessage());
                         }
 
                         public void onDataChange(DataSnapshot snap) {
-                            boolean found = false;
-                            for (DataSnapshot otherPlayer : snap.getChildren()) {
-                                // TODO actually we need some kind of player -> ID lookup here or something
+                            if (snap.getValue() == null) {
+                                currentPlayer.sendMessage("Player \"" + friendName + "\" not found.");
+                            } else {
+                                final String friendId = (String) snap.getValue();
+                                final Firebase friendNameRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + friendId + "/name");
+                                
+                                // get the friend's official name
+                                friendNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                    public void onCancelled(FirebaseError error) {
+                                        FriendCraft.error(error.getMessage());
+                                    }
+
+                                    public void onDataChange(DataSnapshot snap) {
+                                        // save the friend's ID to the current player's friends list
+                                        // and confirm with the official name
+                                        final String officialFriendName = (String) snap.getValue();
+                                        final Firebase friendsListRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + currentPlayer.getUniqueId().toString() + "/friends");
+                                        
+                                        friendsListRef.child(friendId).removeValue(new Firebase.CompletionListener() {
+                                            
+                                            public void onComplete(FirebaseError error, Firebase ref) {
+                                                currentPlayer.sendMessage("Removed " + officialFriendName + " from your friends list.");
+                                            }
+                                        });
+                                    }
+                                });
                             }
                         }
-                        
                     });
+                    
+                    return true;
                 }
             }
         }
