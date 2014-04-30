@@ -174,6 +174,14 @@ public class PrimaryCommandExecutor implements CommandExecutor
 
                         public void onDataChange(DataSnapshot snapshot) {
                             final long numberOfFriends = snapshot.getChildrenCount();
+                            
+                            if (numberOfFriends == 0) {
+                                currentPlayer.sendMessage(new String[] {
+                                    ChatColor.YELLOW + "You haven't added any friends yet.",
+                                    ChatColor.YELLOW + "Use /fc add <player name> to add a friend to your list."
+                                });
+                            }
+                            
                             final AtomicLong friendsRead = new AtomicLong();
                             final List<DataSnapshot> friendSnapshots = Collections.synchronizedList(new ArrayList<DataSnapshot>());
                             
