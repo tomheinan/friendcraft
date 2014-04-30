@@ -199,10 +199,11 @@ public class PrimaryCommandExecutor implements CommandExecutor
                                         
                                         if (currentFriendsRead == numberOfFriends) {
                                             StringBuilder stringBuilder = new StringBuilder();
-                                            Iterator it = friendSnapshots.iterator(); 
+                                            Iterator<DataSnapshot> it = friendSnapshots.iterator(); 
                                             
                                             while (it.hasNext()) {
                                                 DataSnapshot friend = (DataSnapshot) it.next();
+                                                @SuppressWarnings("unchecked")
                                                 Map<String, Object> friendData = (Map<String, Object>) friend.getValue();
                                                 stringBuilder.append((String) friendData.get("name"));
                                             }

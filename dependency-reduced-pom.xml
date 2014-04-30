@@ -65,12 +65,12 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.7.2-R0.2</version>
+      <version>1.7.9-R0.1-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
   <properties>
-    <bukkitVersion>1.7.2-R0.2</bukkitVersion>
+    <bukkitVersion>1.7.9-R0.1-SNAPSHOT</bukkitVersion>
     <firebaseVersion>[1.0.7,)</firebaseVersion>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
