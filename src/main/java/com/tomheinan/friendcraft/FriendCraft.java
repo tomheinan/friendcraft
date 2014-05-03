@@ -12,6 +12,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.event.HandlerList;
@@ -32,6 +33,10 @@ public class FriendCraft extends JavaPlugin
     //public static String authRoot = "https://friendcraft.io"; // production
     public static String authRoot = "http://localhost:3000"; // development
     
+    public enum PresenceState {
+        OFFLINE, PLUGIN, APP
+    }
+    
     protected static Configuration configuration;
     protected static Logger logger = null;
     
@@ -39,9 +44,11 @@ public class FriendCraft extends JavaPlugin
     protected File dataFolder;
     protected EventListener eventListener;
     protected Object authData;
+    public static FriendCraft sharedInstance;
 
     public void onEnable()
     {
+        sharedInstance = this;
         logger = this.getLogger();
         this.server = this.getServer();
         this.dataFolder = this.getDataFolder();
@@ -165,6 +172,22 @@ public class FriendCraft extends JavaPlugin
     public void disable()
     {
         server.getPluginManager().disablePlugin(this);
+    }
+    
+    public static String color(String playerName, PresenceState state)
+    {
+        String name;
+        
+        switch (state) {
+        case PLUGIN:
+            name = ChatColor.GREEN + playerName;
+            break;
+        default:
+            name = ChatColor.GRAY + playerName;
+            break;
+        }
+        
+        return name;
     }
 
     public static void log(String msg)

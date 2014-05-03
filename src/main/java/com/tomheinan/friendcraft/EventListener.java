@@ -48,6 +48,9 @@ public final class EventListener implements Listener
                 }
             }
         });
+        
+        // set up scoreboard list
+        FriendsListManager.sharedInstance.addPlayer(player);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -71,5 +74,7 @@ public final class EventListener implements Listener
                 }
             }
         });
+        
+        FriendsListManager.sharedInstance.removePlayer(player);
     }
 }

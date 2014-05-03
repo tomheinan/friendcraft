@@ -45,6 +45,12 @@ public class PrimaryCommandExecutor implements CommandExecutor
                     } else if (item.equalsIgnoreCase("list")) {
                         currentPlayer.sendMessage(new String[]{"Lists your friends", "Usage: /fc list"});
                         return true;
+                    } else if (item.equalsIgnoreCase("show")) {
+                        currentPlayer.sendMessage(new String[]{"Shows the sidebar", "Usage: /fc show"});
+                        return true;
+                    } else if (item.equalsIgnoreCase("list")) {
+                        currentPlayer.sendMessage(new String[]{"Hides the sidebar", "Usage: /fc hide"});
+                        return true;
                     }
                 } else if (action.equalsIgnoreCase("add") && args.length > 1) {
                     final String friendName = args[1];
@@ -199,13 +205,33 @@ public class PrimaryCommandExecutor implements CommandExecutor
                                         
                                         if (currentFriendsRead == numberOfFriends) {
                                             StringBuilder stringBuilder = new StringBuilder();
-                                            Iterator<DataSnapshot> it = friendSnapshots.iterator(); 
+                                            Iterator<DataSnapshot> it = friendSnapshots.iterator();
+                                            
+                                            stringBuilder.append(ChatColor.YELLOW + "Friends: ");
                                             
                                             while (it.hasNext()) {
                                                 DataSnapshot friend = (DataSnapshot) it.next();
                                                 @SuppressWarnings("unchecked")
                                                 Map<String, Object> friendData = (Map<String, Object>) friend.getValue();
-                                                stringBuilder.append((String) friendData.get("name"));
+                                                
+                                                String friendName = (String) friendData.get("name");
+                                                @SuppressWarnings("unchecked")
+                                                Map<String, Object> presence = (Map<String, Object>) friendData.get("presence");
+                                                FriendCraft.PresenceState state = FriendCraft.PresenceState.OFFLINE;
+                                                
+                                                if (presence != null) {
+                                                    if (presence.get("plugin") != null) {
+                                                        state = FriendCraft.PresenceState.PLUGIN;
+                                                    } else if (presence.get("app") != null) {
+                                                        state = FriendCraft.PresenceState.APP;
+                                                    }
+                                                }
+                                                
+                                                stringBuilder.append(FriendCraft.color(friendName, state));
+                                                
+                                                if (it.hasNext()) {
+                                                    stringBuilder.append(ChatColor.YELLOW + ", ");
+                                                }
                                             }
                                             
                                             currentPlayer.sendMessage(stringBuilder.toString());
@@ -216,6 +242,14 @@ public class PrimaryCommandExecutor implements CommandExecutor
                         }
                     });
                     
+                    return true;
+                    
+                } else if (action.equalsIgnoreCase("show")) {
+                    FriendsListManager.sharedInstance.showList(currentPlayer);
+                    return true;
+                    
+                } else if (action.equalsIgnoreCase("hide")) {
+                    FriendsListManager.sharedInstance.hideList(currentPlayer);
                     return true;
                     
                 }
