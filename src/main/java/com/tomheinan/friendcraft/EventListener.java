@@ -33,7 +33,6 @@ public final class EventListener implements Listener
                     FriendCraft.error(error.getMessage());
                 }
             }
-            
         });
         
         // add the player to this plugin's list of players
@@ -49,8 +48,8 @@ public final class EventListener implements Listener
             }
         });
         
-        // set up scoreboard list
-        FriendsListManager.sharedInstance.addPlayer(player);
+        // set up and track a friends list for this player
+        FriendsListManager.sharedInstance.register(player);
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
@@ -75,6 +74,7 @@ public final class EventListener implements Listener
             }
         });
         
-        FriendsListManager.sharedInstance.removePlayer(player);
+        // remove friends list listeners
+        FriendsListManager.sharedInstance.deregister(player);
     }
 }

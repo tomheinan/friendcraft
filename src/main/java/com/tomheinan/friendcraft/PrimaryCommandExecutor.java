@@ -1,22 +1,14 @@
 package com.tomheinan.friendcraft;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.tomheinan.friendcraft.callbacks.FriendLookupCallback;
+import com.tomheinan.friendcraft.models.Friend;
+import com.tomheinan.friendcraft.models.FriendsList;
 
 public class PrimaryCommandExecutor implements CommandExecutor
 {
@@ -29,6 +21,7 @@ public class PrimaryCommandExecutor implements CommandExecutor
             }
             
             final Player currentPlayer = (Player) sender;
+            final FriendsList friendsList = FriendsListManager.sharedInstance.getListForPlayer(currentPlayer);
             
             if (args.length > 0) {
                 String action = args[0];
@@ -52,9 +45,9 @@ public class PrimaryCommandExecutor implements CommandExecutor
                         currentPlayer.sendMessage(new String[]{"Hides the sidebar", "Usage: /fc hide"});
                         return true;
                     }
+                    
                 } else if (action.equalsIgnoreCase("add") && args.length > 1) {
                     final String friendName = args[1];
-                    final Firebase playerIdFromNameRef = new Firebase(FriendCraft.firebaseRoot + "/index/players/by-name/" + friendName.toLowerCase());
                     
                     // prevent a player from adding him/herself as a friend
                     // (that's just depressing)
@@ -63,53 +56,16 @@ public class PrimaryCommandExecutor implements CommandExecutor
 //                        return true;
 //                    }
                     
-                    // find the friend by his/her name from the index
-                    playerIdFromNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    FriendManager.sharedInstance.getFriend(friendName, new FriendLookupCallback() {
 
-                        public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+                        @Override
+                        public void onFound(Friend friend) {
+                            friendsList.add(friend);
+                        }
 
-                        public void onDataChange(DataSnapshot snapshot) {
-                            if (snapshot.getValue() == null) {
-                                currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named \"" + friendName + "\". Sorry!");
-                            } else {
-                                final String friendId = (String) snapshot.getValue();
-                                final Firebase friendNameRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + friendId + "/name");
-                                
-                                // get the friend's official name
-                                friendNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
-
-                                    public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
-
-                                    public void onDataChange(DataSnapshot snapshot) {
-                                        final String officialFriendName = (String) snapshot.getValue();
-                                        final Firebase friendsListRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + currentPlayer.getUniqueId().toString() + "/friends");
-                                        
-                                        // check to see if the current player already has the friend on his/her list
-                                        friendsListRef.child(friendId).addListenerForSingleValueEvent(new ValueEventListener() {
-
-                                            public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
-
-                                            public void onDataChange(DataSnapshot snapshot) {
-                                                if (snapshot.getValue() != null && ((Boolean)snapshot.getValue()).booleanValue()) {
-                                                    currentPlayer.sendMessage(
-                                                        officialFriendName + ChatColor.YELLOW + " is already on your friends list."
-                                                    );
-                                                } else {
-                                                    // add the friend!
-                                                    friendsListRef.child(friendId).setValue(Boolean.TRUE, new Firebase.CompletionListener() {
-                                                        
-                                                        public void onComplete(FirebaseError error, Firebase ref) {
-                                                            currentPlayer.sendMessage(
-                                                                ChatColor.YELLOW + "Added " + ChatColor.WHITE + officialFriendName + ChatColor.YELLOW + " to your friends list."
-                                                            );
-                                                        }
-                                                    });
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-                            }
+                        @Override
+                        public void onNotFound() {
+                            currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named \"" + friendName + "\". Sorry!");
                         }
                     });
                     
@@ -117,139 +73,32 @@ public class PrimaryCommandExecutor implements CommandExecutor
                     
                 } else if (action.equalsIgnoreCase("remove") && args.length > 1) {
                     final String friendName = args[1];
-                    final Firebase playerIdFromNameRef = new Firebase(FriendCraft.firebaseRoot + "/index/players/by-name/" + friendName.toLowerCase());
                     
-                    // find the friend by his/her name from the index
-                    playerIdFromNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    FriendManager.sharedInstance.getFriend(friendName, new FriendLookupCallback() {
 
-                        public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+                        @Override
+                        public void onFound(Friend friend) {
+                            friendsList.remove(friend);
+                        }
 
-                        public void onDataChange(DataSnapshot snapshot) {
-                            if (snapshot.getValue() == null) {
-                                currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named \"" + friendName + "\". Sorry!");
-                            } else {
-                                final String friendId = (String) snapshot.getValue();
-                                final Firebase friendNameRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + friendId + "/name");
-                                
-                                // get the friend's official name
-                                friendNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
-
-                                    public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
-
-                                    public void onDataChange(DataSnapshot snapshot) {
-                                        final String officialFriendName = (String) snapshot.getValue();
-                                        final Firebase friendsListRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + currentPlayer.getUniqueId().toString() + "/friends");
-                                        
-                                        // check to see if the friend is present on the player's list
-                                        friendsListRef.child(friendId).addListenerForSingleValueEvent(new ValueEventListener() {
-
-                                            public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
-
-                                            public void onDataChange(DataSnapshot snapshot) {
-                                                if (snapshot.getValue() == null || !((Boolean)snapshot.getValue()).booleanValue()) {
-                                                    currentPlayer.sendMessage(
-                                                        officialFriendName + ChatColor.YELLOW + " is not on your friends list."
-                                                    );
-                                                } else {
-                                                    // remove the friend from the list
-                                                    friendsListRef.child(friendId).removeValue(new Firebase.CompletionListener() {
-                                                        
-                                                        public void onComplete(FirebaseError error, Firebase ref) {
-                                                            currentPlayer.sendMessage(
-                                                                ChatColor.YELLOW + "Removed " + ChatColor.WHITE + officialFriendName + ChatColor.YELLOW + " from your friends list."
-                                                            );
-                                                        }
-                                                    });
-                                                }
-                                            }
-                                        });
-                                    }
-                                });
-                            }
+                        @Override
+                        public void onNotFound() {
+                            currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named \"" + friendName + "\". Sorry!");
                         }
                     });
                     
                     return true;
                     
                 } else if (action.equalsIgnoreCase("list")) {
-                    final Firebase friendsListRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + currentPlayer.getUniqueId().toString() + "/friends");
-                    
-                    friendsListRef.addListenerForSingleValueEvent(new ValueEventListener() {
-
-                        public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
-
-                        public void onDataChange(DataSnapshot snapshot) {
-                            final long numberOfFriends = snapshot.getChildrenCount();
-                            
-                            if (numberOfFriends == 0) {
-                                currentPlayer.sendMessage(new String[] {
-                                    ChatColor.YELLOW + "You haven't added any friends yet.",
-                                    ChatColor.YELLOW + "Use /fc add <player name> to add a friend to your list."
-                                });
-                            }
-                            
-                            final AtomicLong friendsRead = new AtomicLong();
-                            final List<DataSnapshot> friendSnapshots = Collections.synchronizedList(new ArrayList<DataSnapshot>());
-                            
-                            for (DataSnapshot friendIdSnapshot : snapshot.getChildren()) {
-                                final String friendId = friendIdSnapshot.getName();
-                                final Firebase friendRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + friendId);
-                                
-                                friendRef.addListenerForSingleValueEvent(new ValueEventListener() {
-
-                                    public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
-
-                                    public void onDataChange(DataSnapshot friendSnapshot) {
-                                        friendSnapshots.add(friendSnapshot);
-                                        long currentFriendsRead = friendsRead.incrementAndGet();
-                                        
-                                        if (currentFriendsRead == numberOfFriends) {
-                                            StringBuilder stringBuilder = new StringBuilder();
-                                            Iterator<DataSnapshot> it = friendSnapshots.iterator();
-                                            
-                                            stringBuilder.append(ChatColor.YELLOW + "Friends: ");
-                                            
-                                            while (it.hasNext()) {
-                                                DataSnapshot friend = (DataSnapshot) it.next();
-                                                @SuppressWarnings("unchecked")
-                                                Map<String, Object> friendData = (Map<String, Object>) friend.getValue();
-                                                
-                                                String friendName = (String) friendData.get("name");
-                                                @SuppressWarnings("unchecked")
-                                                Map<String, Object> presence = (Map<String, Object>) friendData.get("presence");
-                                                FriendCraft.PresenceState state = FriendCraft.PresenceState.OFFLINE;
-                                                
-                                                if (presence != null) {
-                                                    if (presence.get("plugin") != null) {
-                                                        state = FriendCraft.PresenceState.PLUGIN;
-                                                    } else if (presence.get("app") != null) {
-                                                        state = FriendCraft.PresenceState.APP;
-                                                    }
-                                                }
-                                                
-                                                stringBuilder.append(FriendCraft.color(friendName, state));
-                                                
-                                                if (it.hasNext()) {
-                                                    stringBuilder.append(ChatColor.YELLOW + ", ");
-                                                }
-                                            }
-                                            
-                                            currentPlayer.sendMessage(stringBuilder.toString());
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
-                    
+                    currentPlayer.sendMessage(friendsList.toString());
                     return true;
                     
                 } else if (action.equalsIgnoreCase("show")) {
-                    FriendsListManager.sharedInstance.showList(currentPlayer);
+                    //FriendsListManager.sharedInstance.showList(currentPlayer);
                     return true;
                     
                 } else if (action.equalsIgnoreCase("hide")) {
-                    FriendsListManager.sharedInstance.hideList(currentPlayer);
+                    //FriendsListManager.sharedInstance.hideList(currentPlayer);
                     return true;
                     
                 }
