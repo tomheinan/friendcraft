@@ -90,15 +90,24 @@ public class PrimaryCommandExecutor implements CommandExecutor
                     return true;
                     
                 } else if (action.equalsIgnoreCase("list")) {
+                    if (friendsList.getFriends().size() == 0) {
+                        currentPlayer.sendMessage(new String[] {
+                            ChatColor.YELLOW + "You haven't added any friends yet.",
+                            ChatColor.YELLOW + "Use /fc add <player name> to add a friend to your list."
+                        });
+                        
+                        return true;
+                    }
+                    
                     currentPlayer.sendMessage(friendsList.toString());
                     return true;
                     
                 } else if (action.equalsIgnoreCase("show")) {
-                    //FriendsListManager.sharedInstance.showList(currentPlayer);
+                    friendsList.showSidebar();
                     return true;
                     
                 } else if (action.equalsIgnoreCase("hide")) {
-                    //FriendsListManager.sharedInstance.hideList(currentPlayer);
+                    friendsList.hideSidebar();
                     return true;
                     
                 }

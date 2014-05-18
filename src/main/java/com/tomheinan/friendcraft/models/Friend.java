@@ -15,7 +15,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.tomheinan.friendcraft.FriendCraft;
 
-public class Friend
+public class Friend implements Comparable<Friend>
 {
     public enum Status
     {
@@ -56,9 +56,12 @@ public class Friend
                 
                 if (oldStatus != newStatus) {
                     Friend.this.status = newStatus;
-                    Iterator<FriendsList> it = Friend.this.lists.iterator();
-                    while (it.hasNext()) {
-                        it.next().render();
+                    
+                    synchronized(lists) {
+                        Iterator<FriendsList> it = lists.iterator();
+                        while (it.hasNext()) {
+                            it.next().render();
+                        }
                     }
                 }
             }
@@ -72,17 +75,23 @@ public class Friend
     
     public void addToList(FriendsList list)
     {
-        lists.add(list);
+        synchronized(lists) {
+            lists.add(list);
+        }
     }
     
     public void removeFromList(FriendsList list)
     {
-        lists.remove(list);
+        synchronized(lists) {
+            lists.remove(list);
+        }
     }
     
     public boolean belongsToList(FriendsList list)
     {
-        return lists.contains(list);
+        synchronized(lists) {
+            return lists.contains(list);
+        }
     }
     
     public UUID getUUID()
@@ -114,6 +123,16 @@ public class Friend
         }
 
         return displayName;
+    }
+    
+    public String[] getAllDisplayNames()
+    {
+        return new String[] {name, ChatColor.GREEN + name, ChatColor.GRAY + name};
+    }
+    
+    public int compareTo(Friend other)
+    {
+        return this.name.compareToIgnoreCase(other.name);
     }
     
     public void unlink()

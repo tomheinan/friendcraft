@@ -1,10 +1,16 @@
 package com.tomheinan.friendcraft.models;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -17,6 +23,9 @@ import com.tomheinan.friendcraft.FriendManager;
 public class FriendsList
 {
     private final Player owner;
+    private Scoreboard sidebar;
+    private final Scoreboard blank = Bukkit.getScoreboardManager().getNewScoreboard();
+    private boolean showSidebar = false;
     
     private final Firebase friendsListRef;
     private final ChildEventListener friendsListListener;
@@ -36,12 +45,14 @@ public class FriendsList
                 UUID uuid = UUID.fromString(snapshot.getName());
                 Friend friend = FriendManager.sharedInstance.getFriend(uuid);
                 friend.addToList(FriendsList.this);
+                render();
             }
 
             public void onChildRemoved(DataSnapshot snapshot) {
                 UUID uuid = UUID.fromString(snapshot.getName());
                 Friend friend = FriendManager.sharedInstance.getFriend(uuid);
                 friend.removeFromList(FriendsList.this);
+                render();
             }
         };
         
@@ -101,14 +112,59 @@ public class FriendsList
         return FriendManager.sharedInstance.getFriends(this);
     }
     
+    public void showSidebar()
+    {
+        showSidebar = true;
+        render();
+    }
+    
+    public void hideSidebar()
+    {
+        showSidebar = false;
+        render();
+    }
+    
     public void render()
     {
-        
+        if (showSidebar) {
+            sidebar = Bukkit.getScoreboardManager().getNewScoreboard();
+            Objective friendsObjective = sidebar.registerNewObjective("friends", "dummy");
+            friendsObjective.setDisplayName(ChatColor.YELLOW + "Friends");
+            friendsObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            
+            List<Friend> friends = getFriends();
+            Iterator<Friend> it = friends.iterator();
+            while (it.hasNext()) {
+                Friend friend = it.next();
+                friendsObjective.getScore(friend.getDisplayName()).setScore(0);
+            }
+            
+            owner.setScoreboard(sidebar);
+        } else {
+            owner.setScoreboard(blank);
+        }
     }
     
     public String toString()
     {
-        return Integer.toString(getFriends().size());
+        List<Friend> friends = getFriends();
+        Iterator<Friend> it = friends.iterator();
+        StringBuilder stringBuilder = new StringBuilder();
+        
+        stringBuilder.append(ChatColor.YELLOW + "Friends: ");
+        while (it.hasNext()) {
+            Friend friend = it.next();
+            
+            if (it.hasNext()) {
+                stringBuilder.append(friend.getDisplayName());
+                stringBuilder.append(ChatColor.YELLOW + ", ");
+            } else {
+                stringBuilder.append(ChatColor.YELLOW + "and ");
+                stringBuilder.append(friend.getDisplayName());
+            }
+        }
+        
+        return stringBuilder.toString();
     }
     
     public void unlink()

@@ -1,6 +1,7 @@
 package com.tomheinan.friendcraft;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -26,10 +27,13 @@ public class FriendManager
     
     public Friend getFriend(UUID uuid)
     {
-        Friend friend = friends.get(uuid);
-        if (friend == null) {
-            friend = new Friend(uuid);
-            friends.put(uuid, friend);
+        Friend friend;
+        synchronized(friends) {
+            friend = friends.get(uuid);
+            if (friend == null) {
+                friend = new Friend(uuid);
+                friends.put(uuid, friend);
+            }
         }
         
         return friend;
@@ -57,15 +61,19 @@ public class FriendManager
     public List<Friend> getFriends(FriendsList list)
     {
         List<Friend> friendsList = new ArrayList<Friend>();
+        Collection<Friend> allFriends = Collections.synchronizedCollection(friends.values());
         
-        Iterator<Friend> it = friends.values().iterator();
-        while (it.hasNext()) {
-            Friend friend = it.next();
-            if (friend.belongsToList(list)) {
-                friendsList.add(friend);
+        synchronized(allFriends) {
+            Iterator<Friend> it = allFriends.iterator();
+            while (it.hasNext()) {
+                Friend friend = it.next();
+                if (friend.belongsToList(list)) {
+                    friendsList.add(friend);
+                }
             }
         }
         
+        Collections.sort(friendsList);
         return friendsList;
     }
 }
