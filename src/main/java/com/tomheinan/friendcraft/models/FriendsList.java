@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
@@ -25,6 +24,7 @@ public class FriendsList
     private final Player owner;
     private Scoreboard sidebar;
     private final Scoreboard blank = Bukkit.getScoreboardManager().getNewScoreboard();
+    private final boolean enableSidebar;
     private boolean showSidebar = false;
     
     private final Firebase friendsListRef;
@@ -33,6 +33,7 @@ public class FriendsList
     public FriendsList(Player owner)
     {
         this.owner = owner;
+        this.enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
         
         friendsListRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + owner.getUniqueId().toString() + "/friends");
         friendsListListener = new ChildEventListener() {
@@ -126,22 +127,24 @@ public class FriendsList
     
     public void render()
     {
-        if (showSidebar) {
-            sidebar = Bukkit.getScoreboardManager().getNewScoreboard();
-            Objective friendsObjective = sidebar.registerNewObjective("friends", "dummy");
-            friendsObjective.setDisplayName(ChatColor.YELLOW + "Friends");
-            friendsObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
-            
-            List<Friend> friends = getFriends();
-            Iterator<Friend> it = friends.iterator();
-            while (it.hasNext()) {
-                Friend friend = it.next();
-                friendsObjective.getScore(friend.getDisplayName()).setScore(0);
+        if (enableSidebar) {
+            if (showSidebar) {
+                sidebar = Bukkit.getScoreboardManager().getNewScoreboard();
+                Objective friendsObjective = sidebar.registerNewObjective("friends", "dummy");
+                friendsObjective.setDisplayName(ChatColor.YELLOW + "Friends");
+                friendsObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                
+                List<Friend> friends = getFriends();
+                Iterator<Friend> it = friends.iterator();
+                while (it.hasNext()) {
+                    Friend friend = it.next();
+                    friendsObjective.getScore(friend.getDisplayName()).setScore(0);
+                }
+                
+                owner.setScoreboard(sidebar);
+            } else {
+                owner.setScoreboard(blank);
             }
-            
-            owner.setScoreboard(sidebar);
-        } else {
-            owner.setScoreboard(blank);
         }
     }
     

@@ -103,11 +103,23 @@ public class PrimaryCommandExecutor implements CommandExecutor
                     return true;
                     
                 } else if (action.equalsIgnoreCase("show")) {
-                    friendsList.showSidebar();
+                    boolean enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
+                    if (enableSidebar) {
+                        friendsList.showSidebar();
+                    } else {
+                        currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled.");
+                    }
+                    
                     return true;
                     
                 } else if (action.equalsIgnoreCase("hide")) {
-                    friendsList.hideSidebar();
+                    boolean enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
+                    if (enableSidebar) {
+                        friendsList.hideSidebar();
+                    } else {
+                        currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled.");
+                    }
+                    
                     return true;
                     
                 }

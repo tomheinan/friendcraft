@@ -4,15 +4,18 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.Firebase.AuthListener;
 import com.firebase.client.Firebase.CompletionListener;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 public class FriendCraft extends JavaPlugin {
     // public static String firebaseRoot = "https://friendcraft.firebaseio.com"; // production
@@ -69,6 +72,29 @@ public class FriendCraft extends JavaPlugin {
                 // link commands to their executors
                 getCommand("fc").setExecutor(new PrimaryCommandExecutor());
                 
+                // set up a disconnection callback
+                Firebase connectionRef = new Firebase(FriendCraft.firebaseRoot + "/.info/connected");
+                connectionRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    public void onCancelled(FirebaseError error) { error(error.getMessage()); }
+
+                    public void onDataChange(DataSnapshot snapshot) {
+                        boolean connected = snapshot.getValue(Boolean.class);
+                        
+                        if (connected) {
+                            String pluginId = (String) configuration.get("authentication.id");
+                            Firebase pluginStatusRef = new Firebase(firebaseRoot + "/plugins/" + pluginId + "/status");
+                            
+                            pluginStatusRef.child("connected").setValue(Boolean.TRUE);
+                            pluginStatusRef.child("connected").onDisconnect().setValue(Boolean.FALSE);
+                            
+                            pluginStatusRef.child("minecraft-version").setValue(Bukkit.getServer().getBukkitVersion());
+                            pluginStatusRef.child("plugin-version").setValue("1.0-SNAPSHOT"); // TODO replace this with pom version later
+                            pluginStatusRef.child("motd").setValue(Bukkit.getServer().getMotd());
+                        }
+                    }
+                });
+                
                 log("Version " + getDescription().getVersion() + " enabled");
             }  
         };
@@ -84,10 +110,14 @@ public class FriendCraft extends JavaPlugin {
         // disconnect from firebase
         if (authData != null) {
             log("Disconnecting from Firebase");
-            Firebase rootRef = new Firebase(firebaseRoot);
+            
+            String pluginId = (String) configuration.get("authentication.id");
+            Firebase pluginUpRef = new Firebase(firebaseRoot + "/plugins/" + pluginId + "/status/connected");
+            pluginUpRef.setValue(Boolean.FALSE);
 
-            // note: this is currently throwing a ConcurrentModificationException in 1.7.2
+            // note: this is currently throwing a ConcurrentModificationException in 1.7.9
             // i don't know why, but let's just let it do so...
+            Firebase rootRef = new Firebase(firebaseRoot);
             rootRef.unauth(new CompletionListener() {
 
                 public void onComplete(FirebaseError err, Firebase ref) {
