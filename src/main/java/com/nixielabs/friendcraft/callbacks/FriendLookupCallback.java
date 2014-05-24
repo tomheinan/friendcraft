@@ -1,6 +1,6 @@
-package com.tomheinan.friendcraft.callbacks;
+package com.nixielabs.friendcraft.callbacks;
 
-import com.tomheinan.friendcraft.models.Friend;
+import com.nixielabs.friendcraft.models.Friend;
 
 public abstract class FriendLookupCallback
 {

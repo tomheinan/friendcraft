@@ -1,4 +1,4 @@
-package com.tomheinan.friendcraft;
+package com.nixielabs.friendcraft;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,9 +13,9 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.tomheinan.friendcraft.callbacks.FriendLookupCallback;
-import com.tomheinan.friendcraft.models.Friend;
-import com.tomheinan.friendcraft.models.FriendsList;
+import com.nixielabs.friendcraft.callbacks.FriendLookupCallback;
+import com.nixielabs.friendcraft.models.Friend;
+import com.nixielabs.friendcraft.models.FriendsList;
 
 public class FriendManager
 {

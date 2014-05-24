@@ -1,6 +1,6 @@
 name: FriendCraft
 version: "${project.version}"
-main: com.tomheinan.friendcraft.FriendCraft
+main: com.nixielabs.friendcraft.FriendCraft
 commands:
   fc:
     description: The primary command interface to FriendCraft

@@ -1,4 +1,4 @@
-package com.tomheinan.friendcraft.models;
+package com.nixielabs.friendcraft.models;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.tomheinan.friendcraft.FriendCraft;
+import com.nixielabs.friendcraft.FriendCraft;
 
 public class Friend implements Comparable<Friend>
 {

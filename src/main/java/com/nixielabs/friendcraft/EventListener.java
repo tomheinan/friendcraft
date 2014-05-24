@@ -1,4 +1,4 @@
-package com.tomheinan.friendcraft;
+package com.nixielabs.friendcraft;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

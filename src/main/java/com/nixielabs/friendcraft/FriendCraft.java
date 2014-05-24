@@ -1,4 +1,4 @@
-package com.tomheinan.friendcraft;
+package com.nixielabs.friendcraft;
 
 import java.io.File;
 import java.util.logging.Level;

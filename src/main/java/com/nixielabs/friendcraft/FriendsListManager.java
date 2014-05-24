@@ -1,4 +1,4 @@
-package com.tomheinan.friendcraft;
+package com.nixielabs.friendcraft;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import com.tomheinan.friendcraft.models.FriendsList;
+import com.nixielabs.friendcraft.models.FriendsList;
 
 public class FriendsListManager
 {

@@ -1,4 +1,4 @@
-package com.tomheinan.friendcraft;
+package com.nixielabs.friendcraft;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -6,9 +6,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.tomheinan.friendcraft.callbacks.FriendLookupCallback;
-import com.tomheinan.friendcraft.models.Friend;
-import com.tomheinan.friendcraft.models.FriendsList;
+import com.nixielabs.friendcraft.callbacks.FriendLookupCallback;
+import com.nixielabs.friendcraft.models.Friend;
+import com.nixielabs.friendcraft.models.FriendsList;
 
 public class PrimaryCommandExecutor implements CommandExecutor
 {
