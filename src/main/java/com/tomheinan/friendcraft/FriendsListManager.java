@@ -1,10 +1,13 @@
 package com.tomheinan.friendcraft;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.tomheinan.friendcraft.models.FriendsList;
@@ -36,6 +39,31 @@ public class FriendsListManager
         
         if (list != null) {
             list.unlink();
+        }
+    }
+    
+    public void registerAll()
+    {
+        Player[] players = Bukkit.getServer().getOnlinePlayers();
+        for (int i = 0; i < players.length; i++) {
+            Player player = players[i];
+            register(player);
+        }
+    }
+    
+    public void deregisterAll()
+    {
+        synchronized(lists) {
+            Collection<FriendsList> friendsLists = lists.values();
+            Iterator<FriendsList> it = friendsLists.iterator();
+            
+            while (it.hasNext()) {
+                FriendsList list = it.next();
+                list.hideSidebar();
+                list.unlink();
+            }
+            
+            lists.clear();
         }
     }
     

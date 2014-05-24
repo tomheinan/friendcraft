@@ -127,7 +127,7 @@ public class FriendsList
     
     public void render()
     {
-        if (enableSidebar) {
+        if (enableSidebar && owner.isOnline()) {
             if (showSidebar) {
                 sidebar = Bukkit.getScoreboardManager().getNewScoreboard();
                 Objective friendsObjective = sidebar.registerNewObjective("friends", "dummy");

@@ -65,6 +65,9 @@ public class FriendCraft extends JavaPlugin {
             public void onAuthSuccess(Object authData) {
                 FriendCraft.sharedInstance.authData = authData;
                 
+                // register friends lists for all currently online players
+                FriendsListManager.sharedInstance.registerAll();
+                
                 // register for bukkit events
                 if (eventListener == null) { eventListener = new EventListener(); }
                 server.getPluginManager().registerEvents(eventListener, FriendCraft.sharedInstance);
@@ -106,6 +109,9 @@ public class FriendCraft extends JavaPlugin {
     public void onDisable() {
         // deregister events
         HandlerList.unregisterAll(eventListener);
+        
+        // deregister friends lists for all currently online players
+        FriendsListManager.sharedInstance.deregisterAll();
 
         // disconnect from firebase
         if (authData != null) {
