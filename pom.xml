@@ -3,7 +3,7 @@
 
     <groupId>com.tomheinan.friendcraft</groupId>
     <artifactId>FriendCraft</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0 alpha</version>
     <name>FriendCraft</name>
     <url>http://tomheinan.com</url>
     <packaging>jar</packaging>
@@ -76,6 +76,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <finalName>${project.artifactId}</finalName>
                             <artifactSet>
                                 <excludes>
                                      <exclude>org.bukkit:*</exclude>

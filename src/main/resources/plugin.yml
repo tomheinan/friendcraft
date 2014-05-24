@@ -10,7 +10,7 @@ commands:
 depend: []
 softdepend: []
 database: false
-website: "http://tomheinan.com"
+website: "https://nixielabs.com/friendcraft"
 description: ""
 author: "Tom Heinan"
 authors:

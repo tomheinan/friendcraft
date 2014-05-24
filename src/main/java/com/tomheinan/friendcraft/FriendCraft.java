@@ -92,7 +92,7 @@ public class FriendCraft extends JavaPlugin {
                             pluginStatusRef.child("connected").onDisconnect().setValue(Boolean.FALSE);
                             
                             pluginStatusRef.child("versions").child("minecraft").setValue(Bukkit.getServer().getBukkitVersion());
-                            pluginStatusRef.child("versions").child("plugin").setValue("1.0-SNAPSHOT"); // TODO replace this with pom version later
+                            pluginStatusRef.child("versions").child("plugin").setValue(getDescription().getVersion());
                             pluginStatusRef.child("motd").setValue(Bukkit.getServer().getMotd());
                             
                             String serverName = configuration.getString("name");
