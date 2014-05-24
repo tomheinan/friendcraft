@@ -161,8 +161,6 @@ public class FriendsList
         friends = getFriends().toArray(friends);
         StringBuilder stringBuilder = new StringBuilder();
         
-        
-        
         if (friends.length == 0) {
             stringBuilder.append(ChatColor.YELLOW + "No friends yet.");
         } else {
@@ -172,21 +170,12 @@ public class FriendsList
                 stringBuilder.append(friends[0].getDisplayName() + ChatColor.YELLOW + ".");
             } else if (friends.length == 2) {
                 stringBuilder.append(friends[0].getDisplayName() + ChatColor.YELLOW + " and " + friends[1].getDisplayName() + ".");
-            }
-        }
-        
-        for (int i = 0; i < friends.length; i++) {
-            Friend friend = friends[i];
-        }
-        while (it.hasNext()) {
-            Friend friend = it.next();
-            
-            if (it.hasNext()) {
-                stringBuilder.append(friend.getDisplayName());
-                stringBuilder.append(ChatColor.YELLOW + ", ");
             } else {
-                stringBuilder.append(ChatColor.YELLOW + "and ");
-                stringBuilder.append(friend.getDisplayName());
+                for (int i = 0; i < friends.length - 1; i++) {
+                    Friend friend = friends[i];
+                    stringBuilder.append(friend.getDisplayName() + ChatColor.YELLOW + ", ");
+                }
+                stringBuilder.append(ChatColor.YELLOW + ", and " + friends[friends.length - 1].getDisplayName() + ChatColor.YELLOW + ".");
             }
         }
         
