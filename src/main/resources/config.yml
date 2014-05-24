@@ -1,4 +1,5 @@
 authentication:
   id: 'your plugin ID here'
   secret: 'your plugin secret here'
+name: 'a friendly name for your server here'
 enable-sidebar: true

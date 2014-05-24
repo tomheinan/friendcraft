@@ -25,6 +25,7 @@ public class Friend implements Comparable<Friend>
     private final UUID uuid;
     private String name;
     private Status status;
+    private String source;
     private final Set<FriendsList> lists = Collections.synchronizedSet(new HashSet<FriendsList>());
     
     private final Firebase friendRef;
@@ -49,8 +50,12 @@ public class Friend implements Comparable<Friend>
                     
                     if (presence.get("plugin") != null) {
                         newStatus = Status.PLUGIN;
+                        Friend.this.source = (String) presence.get("plugin");
                     } else if (presence.get("app") != null) {
                         newStatus = Status.APP;
+                        Friend.this.source = "FriendCraft";
+                    } else {
+                        Friend.this.source = null;
                     }
                 }
                 
@@ -60,7 +65,29 @@ public class Friend implements Comparable<Friend>
                     synchronized(lists) {
                         Iterator<FriendsList> it = lists.iterator();
                         while (it.hasNext()) {
-                            it.next().render();
+                            final FriendsList list = it.next();
+                            list.render();
+                            
+                            if (newStatus == Status.PLUGIN) {
+                                String pluginId = (String) FriendCraft.sharedInstance.getConfig().getConfigurationSection("authentication").getValues(false).get("id");
+                                if (Friend.this.source.equalsIgnoreCase(pluginId)) {
+                                    list.notify(Friend.this.getDisplayName() + ChatColor.YELLOW + " has joined this server.");
+                                } else {
+                                    Firebase pluginNameRef = new Firebase(FriendCraft.firebaseRoot + "/plugins/" + Friend.this.source + "/status/name");
+                                    pluginNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                        public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+
+                                        public void onDataChange(DataSnapshot snapshot) {
+                                            String pluginName = (String) snapshot.getValue();
+                                            list.notify(Friend.this.getDisplayName() + ChatColor.YELLOW + " has joined " + pluginName + ".");
+                                        }
+                                    });
+                                }
+                                
+                            } else if (newStatus == Status.APP) {
+                                list.notify(Friend.this.getDisplayName() + ChatColor.YELLOW + " is online via the " + Friend.this.source + " app.");
+                            }
                         }
                     }
                 }
@@ -107,6 +134,11 @@ public class Friend implements Comparable<Friend>
     public Status getStatus()
     {
         return status;
+    }
+    
+    public String getSource()
+    {
+        return source;
     }
     
     public String getDisplayName()

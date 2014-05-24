@@ -148,13 +148,36 @@ public class FriendsList
         }
     }
     
+    public void notify(String message)
+    {
+        if (owner.isOnline()) {
+            owner.sendMessage(message);
+        }
+    }
+    
     public String toString()
     {
-        List<Friend> friends = getFriends();
-        Iterator<Friend> it = friends.iterator();
+        Friend[] friends = new Friend[getFriends().size()];
+        friends = getFriends().toArray(friends);
         StringBuilder stringBuilder = new StringBuilder();
         
-        stringBuilder.append(ChatColor.YELLOW + "Friends: ");
+        
+        
+        if (friends.length == 0) {
+            stringBuilder.append(ChatColor.YELLOW + "No friends yet.");
+        } else {
+            stringBuilder.append(ChatColor.YELLOW + "Friends: ");
+            
+            if (friends.length == 1) {
+                stringBuilder.append(friends[0].getDisplayName() + ChatColor.YELLOW + ".");
+            } else if (friends.length == 2) {
+                stringBuilder.append(friends[0].getDisplayName() + ChatColor.YELLOW + " and " + friends[1].getDisplayName() + ".");
+            }
+        }
+        
+        for (int i = 0; i < friends.length; i++) {
+            Friend friend = friends[i];
+        }
         while (it.hasNext()) {
             Friend friend = it.next();
             
