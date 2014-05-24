@@ -18,10 +18,10 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 public class FriendCraft extends JavaPlugin {
-    // public static String firebaseRoot = "https://friendcraft.firebaseio.com"; // production
+    //public static String firebaseRoot = "https://friendcraft.firebaseio.com"; // production
     public static String firebaseRoot = "https://friendcraft-dev.firebaseio.com"; // development
 
-    // public static String authRoot = "https://friendcraft.herokuapp.com"; // production
+    //public static String authRoot = "https://friendcraft.herokuapp.com"; // production
     public static String authRoot = "http://localhost:3000"; // development
 
     protected static Configuration configuration;
@@ -88,8 +88,8 @@ public class FriendCraft extends JavaPlugin {
                             pluginStatusRef.child("connected").setValue(Boolean.TRUE);
                             pluginStatusRef.child("connected").onDisconnect().setValue(Boolean.FALSE);
                             
-                            pluginStatusRef.child("minecraft-version").setValue(Bukkit.getServer().getBukkitVersion());
-                            pluginStatusRef.child("plugin-version").setValue("1.0-SNAPSHOT"); // TODO replace this with pom version later
+                            pluginStatusRef.child("versions").child("minecraft").setValue(Bukkit.getServer().getBukkitVersion());
+                            pluginStatusRef.child("versions").child("plugin").setValue("1.0-SNAPSHOT"); // TODO replace this with pom version later
                             pluginStatusRef.child("motd").setValue(Bukkit.getServer().getMotd());
                         }
                     }
