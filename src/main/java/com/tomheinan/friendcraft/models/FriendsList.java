@@ -175,7 +175,7 @@ public class FriendsList
                     Friend friend = friends[i];
                     stringBuilder.append(friend.getDisplayName() + ChatColor.YELLOW + ", ");
                 }
-                stringBuilder.append(ChatColor.YELLOW + ", and " + friends[friends.length - 1].getDisplayName() + ChatColor.YELLOW + ".");
+                stringBuilder.append(ChatColor.YELLOW + "and " + friends[friends.length - 1].getDisplayName() + ChatColor.YELLOW + ".");
             }
         }
         
