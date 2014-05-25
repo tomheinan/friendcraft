@@ -4,9 +4,14 @@ main: com.nixielabs.friendcraft.FriendCraft
 commands:
   fc:
     description: The primary command interface to FriendCraft
-    usage: 'Available commands: add <player>, remove <player>, list. See "/fc help command" for details.'
+    usage: 'Available commands: add <player>, remove <player>, list, show, hide. See "/fc help command" for details.'
     permission: friendcraft.fc
-    permission-message: You don't have permission to use FriendCraft
+    permission-message: You don''t have permission to use FriendCraft.
+  msg:
+    description: Send a message to another player via FriendCraft
+    usage: 'Usage: /msg <player> <message>.'
+    permission: friendcraft.msg
+    permission-message: You don''t have permission to use FriendCraft.
 depend: []
 softdepend: []
 database: false

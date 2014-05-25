@@ -39,7 +39,7 @@ public class FriendManager
         return friend;
     }
     
-    public void getFriend(final String name, final FriendLookupCallback callback)
+    public void getFriend(final String name, final FriendLookupCallback friendLookupCallback)
     {
         // find the friend by his/her name from the index
         final Firebase playerIdFromNameRef = new Firebase(FriendCraft.firebaseRoot + "/index/players/by-name/" + name.toLowerCase());
@@ -49,10 +49,10 @@ public class FriendManager
 
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.getValue() == null) {
-                    callback.onNotFound();
+                    friendLookupCallback.onNotFound();
                 } else {
                     UUID uuid = UUID.fromString((String) snapshot.getValue());
-                    callback.onFound(getFriend(uuid));
+                    friendLookupCallback.onFound(getFriend(uuid));
                 }
             }
         });

@@ -74,6 +74,7 @@ public class FriendCraft extends JavaPlugin {
                 
                 // link commands to their executors
                 getCommand("fc").setExecutor(new PrimaryCommandExecutor());
+                getCommand("msg").setExecutor(new MessagingCommandExecutor());
                 
                 // set up a disconnection callback
                 Firebase connectionRef = new Firebase(FriendCraft.firebaseRoot + "/.info/connected");

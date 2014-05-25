@@ -25,7 +25,7 @@ public class FriendsList
     private Scoreboard sidebar;
     private final Scoreboard blank = Bukkit.getScoreboardManager().getNewScoreboard();
     private final boolean enableSidebar;
-    private boolean showSidebar = false;
+    private boolean showSidebar = true;
     
     private final Firebase friendsListRef;
     private final ChildEventListener friendsListListener;

@@ -19,7 +19,7 @@ public class Friend implements Comparable<Friend>
 {
     public enum Status
     {
-        OFFLINE, PLUGIN, APP
+        UNKNOWN, OFFLINE, PLUGIN, APP
     }
     
     private final UUID uuid;
@@ -34,41 +34,42 @@ public class Friend implements Comparable<Friend>
     public Friend(UUID uuid)
     {
         this.uuid = uuid;
-        friendRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + uuid.toString());
-        friendListener = new ValueEventListener() {
+        this.name = "unknown";
+        this.status = Status.UNKNOWN;
+        
+        this.friendRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + uuid.toString());
+        this.friendListener = new ValueEventListener() {
 
             public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
 
             public void onDataChange(DataSnapshot snapshot) {
                 Friend.this.name = (String) snapshot.child("name").getValue();
-                
                 Status oldStatus = Friend.this.status;
-                Status newStatus = Status.OFFLINE;
-                if (snapshot.child("presence").getValue() != null) {
+                
+                if (snapshot.child("presence").getValue() == null) {
+                    Friend.this.status = Status.OFFLINE;
+                    Friend.this.source = null;
+                } else {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> presence = (Map<String, Object>) snapshot.child("presence").getValue();
                     
                     if (presence.get("plugin") != null) {
-                        newStatus = Status.PLUGIN;
+                        Friend.this.status = Status.PLUGIN;
                         Friend.this.source = (String) presence.get("plugin");
                     } else if (presence.get("app") != null) {
-                        newStatus = Status.APP;
-                        Friend.this.source = "FriendCraft";
-                    } else {
-                        Friend.this.source = null;
+                        Friend.this.status = Status.APP;
+                        Friend.this.source = (String) presence.get("app");
                     }
                 }
                 
-                if (oldStatus != newStatus) {
-                    Friend.this.status = newStatus;
-                    
-                    synchronized(lists) {
-                        Iterator<FriendsList> it = lists.iterator();
-                        while (it.hasNext()) {
-                            final FriendsList list = it.next();
-                            list.render();
-                            
-                            if (newStatus == Status.PLUGIN) {
+                synchronized(lists) {
+                    Iterator<FriendsList> it = lists.iterator();
+                    while (it.hasNext()) {
+                        final FriendsList list = it.next();
+                        list.render();
+                        
+                        if (oldStatus != Friend.this.status) {
+                            if (Friend.this.status == Status.PLUGIN) {
                                 String pluginId = (String) FriendCraft.sharedInstance.getConfig().getConfigurationSection("authentication").getValues(false).get("id");
                                 if (Friend.this.source.equalsIgnoreCase(pluginId)) {
                                     list.notify(Friend.this.getDisplayName() + ChatColor.YELLOW + " has joined this server.");
@@ -85,7 +86,7 @@ public class Friend implements Comparable<Friend>
                                     });
                                 }
                                 
-                            } else if (newStatus == Status.APP) {
+                            } else if (Friend.this.status == Status.APP) {
                                 list.notify(Friend.this.getDisplayName() + ChatColor.YELLOW + " is online via the " + Friend.this.source + " app.");
                             }
                         }
@@ -93,9 +94,6 @@ public class Friend implements Comparable<Friend>
                 }
             }
         };
-        
-        name = uuid.toString();
-        status = Status.OFFLINE;
         
         friendRef.addValueEventListener(friendListener);
     }
@@ -121,25 +119,11 @@ public class Friend implements Comparable<Friend>
         }
     }
     
-    public UUID getUUID()
-    {
-        return uuid;
-    }
-    
-    public String getName()
-    {
-        return name;
-    }
-    
-    public Status getStatus()
-    {
-        return status;
-    }
-    
-    public String getSource()
-    {
-        return source;
-    }
+    public UUID getUUID() { return uuid; }
+    public String getName() { return name; }
+    public Status getStatus() { return status; }
+    public String getSource() { return source; }
+    public Firebase getFriendRef() { return friendRef; }
     
     public String getDisplayName()
     {
@@ -149,8 +133,11 @@ public class Friend implements Comparable<Friend>
         case PLUGIN:
             displayName = ChatColor.GREEN + name;
             break;
-        default:
+        case OFFLINE:
             displayName = ChatColor.GRAY + name;
+            break;
+        default:
+            displayName = ChatColor.WHITE + name;
             break;
         }
 
@@ -159,7 +146,7 @@ public class Friend implements Comparable<Friend>
     
     public String[] getAllDisplayNames()
     {
-        return new String[] {name, ChatColor.GREEN + name, ChatColor.GRAY + name};
+        return new String[] {name, ChatColor.GREEN + name, ChatColor.GRAY + name, ChatColor.WHITE + name};
     }
     
     public int compareTo(Friend other)
