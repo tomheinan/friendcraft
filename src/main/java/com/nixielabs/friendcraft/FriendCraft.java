@@ -16,6 +16,10 @@ import com.firebase.client.Firebase.AuthListener;
 import com.firebase.client.Firebase.CompletionListener;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
+import com.nixielabs.friendcraft.commandexecutors.FriendCraftCommandExecutor;
+import com.nixielabs.friendcraft.eventlisteners.PluginEventListener;
+import com.nixielabs.friendcraft.managers.FriendsListManager;
 
 public class FriendCraft extends JavaPlugin {
     //public static String firebaseRoot = "https://friendcraft.firebaseio.com"; // production
@@ -29,7 +33,7 @@ public class FriendCraft extends JavaPlugin {
 
     protected Server server;
     protected File dataFolder;
-    protected EventListener eventListener;
+    protected PluginEventListener eventListener;
     protected Object authData;
     public static FriendCraft sharedInstance;
 
@@ -69,11 +73,11 @@ public class FriendCraft extends JavaPlugin {
                 FriendsListManager.sharedInstance.registerAll();
                 
                 // register for bukkit events
-                if (eventListener == null) { eventListener = new EventListener(); }
+                if (eventListener == null) { eventListener = new PluginEventListener(); }
                 server.getPluginManager().registerEvents(eventListener, FriendCraft.sharedInstance);
                 
                 // link commands to their executors
-                getCommand("fc").setExecutor(new PrimaryCommandExecutor());
+                getCommand("fc").setExecutor(new FriendCraftCommandExecutor());
                 getCommand("msg").setExecutor(new MessagingCommandExecutor());
                 
                 // set up a disconnection callback

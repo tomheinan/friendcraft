@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft;
+package com.nixielabs.friendcraft.eventlisteners;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,14 +9,16 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.nixielabs.friendcraft.FriendCraft;
+import com.nixielabs.friendcraft.managers.FriendsListManager;
 
-public final class EventListener implements Listener
+public final class PluginEventListener implements Listener
 {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event)
     {
         final Player player = event.getPlayer();
-        final String pluginId = (String) FriendCraft.configuration.get("authentication.id");
+        final String pluginId = (String) FriendCraft.sharedInstance.getConfig().get("authentication.id");
         
         final Firebase playerRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + player.getUniqueId().toString());
         final Firebase pluginPlayersRef = new Firebase(FriendCraft.firebaseRoot + "/plugins/" + pluginId + "/players");
@@ -56,7 +58,7 @@ public final class EventListener implements Listener
     public void onPlayerQuit(PlayerQuitEvent event)
     {
         final Player player = event.getPlayer();
-        final String pluginId = (String) FriendCraft.configuration.get("authentication.id");
+        final String pluginId = (String) FriendCraft.sharedInstance.getConfig().get("authentication.id");
         
         final Firebase pluginPlayerRef = new Firebase(FriendCraft.firebaseRoot + "/plugins/" + pluginId + "/players/" + player.getUniqueId().toString());
         final Firebase presenceRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + player.getUniqueId().toString() + "/presence");

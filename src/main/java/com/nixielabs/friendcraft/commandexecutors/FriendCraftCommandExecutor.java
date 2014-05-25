@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft;
+package com.nixielabs.friendcraft.commandexecutors;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -6,11 +6,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.nixielabs.friendcraft.FriendCraft;
 import com.nixielabs.friendcraft.callbacks.FriendLookupCallback;
+import com.nixielabs.friendcraft.managers.FriendManager;
+import com.nixielabs.friendcraft.managers.FriendsListManager;
 import com.nixielabs.friendcraft.models.Friend;
 import com.nixielabs.friendcraft.models.FriendsList;
 
-public class PrimaryCommandExecutor implements CommandExecutor
+public class FriendCraftCommandExecutor implements CommandExecutor
 {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args)
     {
@@ -30,19 +33,38 @@ public class PrimaryCommandExecutor implements CommandExecutor
                     String item = args[1];
                     
                     if (item.equalsIgnoreCase("add")) {
-                        currentPlayer.sendMessage(new String[]{"Adds a player to your friends list", "Usage: /fc add <player name>"});
+                        currentPlayer.sendMessage(new String[]{
+                            ChatColor.YELLOW + "Adds a player to your friends list.",
+                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc add <player name>"
+                        });
                         return true;
+                        
                     } else if (item.equalsIgnoreCase("remove")) {
-                        currentPlayer.sendMessage(new String[]{"Removes a player from your friends list", "Usage: /fc remove <player name>"});
+                        currentPlayer.sendMessage(new String[]{
+                            ChatColor.YELLOW + "Removes a player from your friends list.",
+                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc remove <player name>"
+                        });
                         return true;
+                        
                     } else if (item.equalsIgnoreCase("list")) {
-                        currentPlayer.sendMessage(new String[]{"Lists your friends", "Usage: /fc list"});
+                        currentPlayer.sendMessage(new String[]{
+                            ChatColor.YELLOW + "Lists your friends.",
+                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc list"
+                        });
                         return true;
+                        
                     } else if (item.equalsIgnoreCase("show")) {
-                        currentPlayer.sendMessage(new String[]{"Shows the sidebar", "Usage: /fc show"});
+                        currentPlayer.sendMessage(new String[]{
+                            ChatColor.YELLOW + "Shows the sidebar",
+                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc show"
+                        });
                         return true;
-                    } else if (item.equalsIgnoreCase("list")) {
-                        currentPlayer.sendMessage(new String[]{"Hides the sidebar", "Usage: /fc hide"});
+                        
+                    } else if (item.equalsIgnoreCase("hide")) {
+                        currentPlayer.sendMessage(new String[]{
+                            ChatColor.YELLOW + "Hides the sidebar",
+                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc hide"
+                        });
                         return true;
                     }
                     
@@ -51,10 +73,10 @@ public class PrimaryCommandExecutor implements CommandExecutor
                     
                     // prevent a player from adding him/herself as a friend
                     // (that's just depressing)
-//                    if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
-//                        currentPlayer.sendMessage(ChatColor.YELLOW + "You can't add yourself as a friend! Go befriend some other human beings.");
-//                        return true;
-//                    }
+                    if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
+                        currentPlayer.sendMessage(ChatColor.YELLOW + "You can't add yourself as a friend! Go befriend some other human beings.");
+                        return true;
+                    }
                     
                     FriendManager.sharedInstance.getFriend(friendName, new FriendLookupCallback() {
 

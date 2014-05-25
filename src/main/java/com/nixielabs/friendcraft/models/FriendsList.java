@@ -17,7 +17,7 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.FriendManager;
+import com.nixielabs.friendcraft.managers.FriendManager;
 
 public class FriendsList
 {

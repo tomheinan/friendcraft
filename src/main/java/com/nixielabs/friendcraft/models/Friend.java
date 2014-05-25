@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -124,6 +125,33 @@ public class Friend implements Comparable<Friend>
     public Status getStatus() { return status; }
     public String getSource() { return source; }
     public Firebase getFriendRef() { return friendRef; }
+    
+    public void sendMessage(final Player sender, final String message)
+    {
+        friendRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+
+            public void onDataChange(DataSnapshot snapshot) {
+                Friend.this.name = (String) snapshot.child("name").getValue();
+                
+                if (snapshot.child("presence").getValue() == null) {
+                    sender.sendMessage(Friend.this.getDisplayName() + ChatColor.YELLOW + " is currently offline and unable to receive messages.");
+                    
+                } else {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> presence = (Map<String, Object>) snapshot.child("presence").getValue();
+                    
+                    if (presence.get("plugin") != null) {
+                        sender.sendMessage(" " + ChatColor.LIGHT_PURPLE + "=> " + Friend.this.name + ": " + message);
+                        
+                    } else if (presence.get("app") != null) {
+                        // TODO app
+                    }
+                }
+            }
+        });
+    }
     
     public String getDisplayName()
     {
