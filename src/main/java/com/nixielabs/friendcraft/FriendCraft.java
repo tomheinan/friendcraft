@@ -164,7 +164,8 @@ public class FriendCraft extends JavaPlugin {
                 if (snapshot.getValue() == null) {
                     callback.onNotFound();
                 } else {
-                    callback.onFound(snapshot.getRef());
+                    String playerName = (String) snapshot.child("name").getValue();
+                    callback.onFound(snapshot.getRef(), playerId, playerName);
                 }
             }
             

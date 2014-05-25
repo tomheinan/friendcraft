@@ -1,14 +1,9 @@
 package com.nixielabs.friendcraft.models;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -23,23 +18,26 @@ public class Friend implements Comparable<Friend>
         UNKNOWN, OFFLINE, PLUGIN, APP
     }
     
-    private final UUID uuid;
+    private final FriendsList list;
+    private final UUID playerId;
     private String name;
     private Status status;
     private String source;
-    private final Set<FriendsList> lists = Collections.synchronizedSet(new HashSet<FriendsList>());
     
-    private final Firebase friendRef;
-    private final ValueEventListener friendListener;
+    private final Firebase playerRef;
+    private final ValueEventListener playerListener;
     
-    public Friend(UUID uuid)
+    public Friend(FriendsList list, Firebase playerRef, UUID playerId, String playerName)
     {
-        this.uuid = uuid;
-        this.name = "unknown";
-        this.status = Status.UNKNOWN;
+        this.list = list;
+        this.playerId = playerId;
+        this.name = playerName;
         
-        this.friendRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + uuid.toString());
-        this.friendListener = new ValueEventListener() {
+        this.status = Status.UNKNOWN;
+        this.source = new String();
+        
+        this.playerRef = playerRef;
+        this.playerListener = new ValueEventListener() {
 
             public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
 
@@ -63,95 +61,42 @@ public class Friend implements Comparable<Friend>
                     }
                 }
                 
-                synchronized(lists) {
-                    Iterator<FriendsList> it = lists.iterator();
-                    while (it.hasNext()) {
-                        final FriendsList list = it.next();
-                        list.render();
-                        
-                        if (oldStatus != Friend.this.status) {
-                            if (Friend.this.status == Status.PLUGIN) {
-                                String pluginId = (String) FriendCraft.sharedInstance.getConfig().getConfigurationSection("authentication").getValues(false).get("id");
-                                if (Friend.this.source.equalsIgnoreCase(pluginId)) {
-                                    list.notify(Friend.this.getDisplayName() + ChatColor.YELLOW + " has joined this server.");
-                                } else {
-                                    Firebase pluginNameRef = new Firebase(FriendCraft.firebaseRoot + "/plugins/" + Friend.this.source + "/status/name");
-                                    pluginNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                if (oldStatus != Friend.this.status) {
+                    Friend.this.list.render();
+                    
+                    if (Friend.this.status == Status.PLUGIN) {
+                        String pluginId = (String) FriendCraft.sharedInstance.getConfig().getConfigurationSection("authentication").getValues(false).get("id");
+                        if (Friend.this.source.equalsIgnoreCase(pluginId)) {
+                            Friend.this.list.getOwner().sendMessage(Friend.this.getDisplayName() + ChatColor.YELLOW + " has joined this server.");
+                            
+                        } else {
+                            Firebase pluginNameRef = new Firebase(FriendCraft.firebaseRoot + "/plugins/" + Friend.this.source + "/status/name");
+                            pluginNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
 
-                                        public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+                                public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
 
-                                        public void onDataChange(DataSnapshot snapshot) {
-                                            String pluginName = (String) snapshot.getValue();
-                                            list.notify(Friend.this.getDisplayName() + ChatColor.YELLOW + " has joined " + pluginName + ".");
-                                        }
-                                    });
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    String pluginName = (String) snapshot.getValue();
+                                    Friend.this.list.getOwner().sendMessage(Friend.this.getDisplayName() + ChatColor.YELLOW + " has joined " + pluginName + ".");
                                 }
-                                
-                            } else if (Friend.this.status == Status.APP) {
-                                list.notify(Friend.this.getDisplayName() + ChatColor.YELLOW + " is online via the " + Friend.this.source + " app.");
-                            }
+                            });
                         }
+                        
+                    } else if (Friend.this.status == Status.APP) {
+                        Friend.this.list.getOwner().sendMessage(Friend.this.getDisplayName() + ChatColor.YELLOW + " is online via the " + Friend.this.source + " app.");
                     }
                 }
             }
         };
         
-        friendRef.addValueEventListener(friendListener);
+        this.playerRef.addValueEventListener(playerListener);
     }
     
-    public void addToList(FriendsList list)
-    {
-        synchronized(lists) {
-            lists.add(list);
-        }
-    }
-    
-    public void removeFromList(FriendsList list)
-    {
-        synchronized(lists) {
-            lists.remove(list);
-        }
-    }
-    
-    public boolean belongsToList(FriendsList list)
-    {
-        synchronized(lists) {
-            return lists.contains(list);
-        }
-    }
-    
-    public UUID getUUID() { return uuid; }
+    public UUID getUniqueId() { return playerId; }
     public String getName() { return name; }
     public Status getStatus() { return status; }
     public String getSource() { return source; }
-    public Firebase getFriendRef() { return friendRef; }
-    
-    public void sendMessage(final Player sender, final String message)
-    {
-        friendRef.addListenerForSingleValueEvent(new ValueEventListener() {
-
-            public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
-
-            public void onDataChange(DataSnapshot snapshot) {
-                Friend.this.name = (String) snapshot.child("name").getValue();
-                
-                if (snapshot.child("presence").getValue() == null) {
-                    sender.sendMessage(Friend.this.getDisplayName() + ChatColor.YELLOW + " is currently offline and unable to receive messages.");
-                    
-                } else {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> presence = (Map<String, Object>) snapshot.child("presence").getValue();
-                    
-                    if (presence.get("plugin") != null) {
-                        sender.sendMessage(" " + ChatColor.LIGHT_PURPLE + "=> " + Friend.this.name + ": " + message);
-                        
-                    } else if (presence.get("app") != null) {
-                        // TODO app
-                    }
-                }
-            }
-        });
-    }
+    public Firebase getPlayerRef() { return playerRef; }
     
     public String getDisplayName()
     {
@@ -177,13 +122,69 @@ public class Friend implements Comparable<Friend>
         return new String[] {name, ChatColor.GREEN + name, ChatColor.GRAY + name, ChatColor.WHITE + name};
     }
     
+    // TODO move this to some messaging class, maybe the command executor
+    /*public void sendMessage(final Player sender, final String message)
+    {
+        playerRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+
+            public void onDataChange(DataSnapshot snapshot) {
+                Friend.this.name = (String) snapshot.child("name").getValue();
+                
+                if (snapshot.child("presence").getValue() == null) {
+                    sender.sendMessage(Friend.this.getDisplayName() + ChatColor.YELLOW + " is currently offline and unable to receive messages.");
+                    
+                } else {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> presence = (Map<String, Object>) snapshot.child("presence").getValue();
+                    
+                    if (presence.get("plugin") != null) {
+                        sender.sendMessage(" " + ChatColor.LIGHT_PURPLE + "=> " + Friend.this.name + ": " + message);
+                        
+                    } else if (presence.get("app") != null) {
+                        // TODO app
+                    }
+                }
+            }
+        });
+    }*/
+    
     public int compareTo(Friend other)
     {
         return this.name.compareToIgnoreCase(other.name);
     }
     
-    public void unlink()
+    @Override
+    public int hashCode()
     {
-        friendRef.removeEventListener(friendListener);
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((playerId == null) ? 0 : playerId.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) { return true; }
+        if (obj == null) { return false; }
+        if (!(obj instanceof Friend)) { return false; }
+        
+        Friend other = (Friend) obj;
+        if (playerId == null) {
+            if (other.playerId != null) {
+                return false;
+            }
+        } else if (!playerId.equals(other.playerId)) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    public void recycle()
+    {
+        playerRef.removeEventListener(playerListener);
     }
 }

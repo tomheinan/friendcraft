@@ -1,16 +1,17 @@
 package com.nixielabs.friendcraft.commandexecutors;
 
+import java.util.UUID;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.firebase.client.Firebase;
 import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.callbacks.FriendLookupCallback;
-import com.nixielabs.friendcraft.managers.FriendManager;
+import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
 import com.nixielabs.friendcraft.managers.FriendsListManager;
-import com.nixielabs.friendcraft.models.Friend;
 import com.nixielabs.friendcraft.models.FriendsList;
 
 public class FriendCraftCommandExecutor implements CommandExecutor
@@ -73,21 +74,19 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     
                     // prevent a player from adding him/herself as a friend
                     // (that's just depressing)
-                    if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
+                    /*if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "You can't add yourself as a friend! Go befriend some other human beings.");
                         return true;
-                    }
+                    }*/
                     
-                    FriendManager.sharedInstance.getFriend(friendName, new FriendLookupCallback() {
-
-                        @Override
-                        public void onFound(Friend friend) {
-                            friendsList.add(friend);
+                    FriendCraft.getPlayerRef(friendName, new PlayerRefCallback() {
+                        
+                        public void onFound(Firebase playerRef, UUID playerId, String playerName) {
+                            friendsList.add(playerId);
                         }
-
-                        @Override
+                        
                         public void onNotFound() {
-                            currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named \"" + friendName + "\". Sorry!");
+                            currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named " + ChatColor.WHITE + friendName + ChatColor.YELLOW + ". Sorry!");
                         }
                     });
                     
@@ -96,23 +95,21 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                 } else if (action.equalsIgnoreCase("remove") && args.length > 1) {
                     final String friendName = args[1];
                     
-                    FriendManager.sharedInstance.getFriend(friendName, new FriendLookupCallback() {
-
-                        @Override
-                        public void onFound(Friend friend) {
-                            friendsList.remove(friend);
+                    FriendCraft.getPlayerRef(friendName, new PlayerRefCallback() {
+                        
+                        public void onFound(Firebase playerRef, UUID playerId, String playerName) {
+                            friendsList.remove(playerId);
                         }
-
-                        @Override
+                        
                         public void onNotFound() {
-                            currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named \"" + friendName + "\". Sorry!");
+                            currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named " + ChatColor.WHITE + friendName + ChatColor.YELLOW + ". Sorry!");
                         }
                     });
                     
                     return true;
                     
                 } else if (action.equalsIgnoreCase("list")) {
-                    if (friendsList.getFriends().size() == 0) {
+                    if (friendsList.size() == 0) {
                         currentPlayer.sendMessage(new String[] {
                             ChatColor.YELLOW + "You haven't added any friends yet.",
                             ChatColor.YELLOW + "Use /fc add <player name> to add a friend to your list."

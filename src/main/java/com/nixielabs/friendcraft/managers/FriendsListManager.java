@@ -38,7 +38,8 @@ public class FriendsListManager
         }
         
         if (list != null) {
-            list.unlink();
+            list.hideSidebar();
+            list.recycle();
         }
     }
     
@@ -60,7 +61,7 @@ public class FriendsListManager
             while (it.hasNext()) {
                 FriendsList list = it.next();
                 list.hideSidebar();
-                list.unlink();
+                list.recycle();
             }
             
             lists.clear();
