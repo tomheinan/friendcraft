@@ -1,6 +1,7 @@
 package com.nixielabs.friendcraft;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +17,7 @@ import com.firebase.client.Firebase.AuthListener;
 import com.firebase.client.Firebase.CompletionListener;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
 import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
 import com.nixielabs.friendcraft.commandexecutors.FriendCraftCommandExecutor;
 import com.nixielabs.friendcraft.eventlisteners.PluginEventListener;
@@ -149,6 +151,42 @@ public class FriendCraft extends JavaPlugin {
 
     public void disable() {
         server.getPluginManager().disablePlugin(this);
+    }
+    
+    public static void getPlayerRef(final UUID playerId, final PlayerRefCallback callback)
+    {
+        Firebase playerRef = new Firebase(firebaseRoot + "/players/" + playerId.toString());
+        playerRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            public void onCancelled(FirebaseError error) { error(error.getMessage()); }
+
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.getValue() == null) {
+                    callback.onNotFound();
+                } else {
+                    callback.onFound(snapshot.getRef());
+                }
+            }
+            
+        });
+    }
+    
+    public static void getPlayerRef(final String playerName, final PlayerRefCallback callback)
+    {
+        Firebase playerIdFromNameRef = new Firebase(firebaseRoot + "/index/players/by-name/" + playerName.toLowerCase());
+        playerIdFromNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            public void onCancelled(FirebaseError error) { error(error.getMessage()); }
+
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.getValue() == null) {
+                    callback.onNotFound();
+                } else {
+                    UUID playerId = UUID.fromString((String) snapshot.getValue());
+                    getPlayerRef(playerId, callback);
+                }
+            }
+        });
     }
 
     public static void log(String msg) { logger.log(Level.INFO, msg); }
