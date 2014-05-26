@@ -7,8 +7,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.callbacks.FriendLookupCallback;
-import com.nixielabs.friendcraft.models.Friend;
 
 public class MessagingCommandExecutor implements CommandExecutor
 {

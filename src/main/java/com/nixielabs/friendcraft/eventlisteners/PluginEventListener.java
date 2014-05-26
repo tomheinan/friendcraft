@@ -37,18 +37,11 @@ public final class PluginEventListener implements Listener
             }
         });
         
+        // add this plugin to the player's presence state
+        playerRef.child("presence").child("plugin").setValue(pluginId);
+        
         // add the player to this plugin's list of players
-        pluginPlayersRef.child(player.getUniqueId().toString()).setValue(Boolean.TRUE, new Firebase.CompletionListener() {
-            
-            public void onComplete(FirebaseError error, Firebase ref) {
-                if (error == null) {
-                    // add this plugin to the player's presence state
-                    playerRef.child("presence").child("plugin").setValue(pluginId);
-                } else {
-                    FriendCraft.error(error.getMessage());
-                }
-            }
-        });
+        pluginPlayersRef.child(player.getUniqueId().toString()).setValue(Boolean.TRUE);
         
         // set up and track a friends list for this player
         FriendsListManager.sharedInstance.register(player);

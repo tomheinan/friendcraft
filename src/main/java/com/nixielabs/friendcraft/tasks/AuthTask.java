@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft;
+package com.nixielabs.friendcraft.tasks;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.firebase.client.Firebase;
 import com.firebase.client.Firebase.AuthListener;
+import com.nixielabs.friendcraft.FriendCraft;
 
 public class AuthTask extends BukkitRunnable
 {
@@ -59,10 +60,9 @@ public class AuthTask extends BukkitRunnable
             response = httpClient.execute(postRequest);
         } catch (Exception e) {
             FriendCraft.error("Unable to reach FriendCraft authentication server", e);
+            httpClient.getConnectionManager().shutdown();
             FriendCraft.sharedInstance.disable();
             return;
-        } finally {
-            httpClient.getConnectionManager().shutdown();
         }
         
         if (response.getStatusLine().getStatusCode() != 200) {
@@ -86,5 +86,7 @@ public class AuthTask extends BukkitRunnable
         FriendCraft.log("Connecting to Firebase");
         Firebase rootRef = new Firebase(FriendCraft.firebaseRoot);
         rootRef.auth(token, authListener);
+        
+        httpClient.getConnectionManager().shutdown();
     }
 }

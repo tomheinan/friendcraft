@@ -22,6 +22,7 @@ import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
 import com.nixielabs.friendcraft.commandexecutors.FriendCraftCommandExecutor;
 import com.nixielabs.friendcraft.eventlisteners.PluginEventListener;
 import com.nixielabs.friendcraft.managers.FriendsListManager;
+import com.nixielabs.friendcraft.tasks.AuthTask;
 
 public class FriendCraft extends JavaPlugin {
     //public static String firebaseRoot = "https://friendcraft.firebaseio.com"; // production
