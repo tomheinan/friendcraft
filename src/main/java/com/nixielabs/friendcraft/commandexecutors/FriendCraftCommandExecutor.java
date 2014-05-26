@@ -25,7 +25,7 @@ public class FriendCraftCommandExecutor implements CommandExecutor
             }
             
             final Player currentPlayer = (Player) sender;
-            final FriendsList friendsList = FriendsListManager.sharedInstance.getListForPlayer(currentPlayer);
+            final FriendsList friendsList = FriendsListManager.sharedInstance.getList(currentPlayer);
             
             if (args.length > 0) {
                 String action = args[0];
@@ -74,10 +74,10 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     
                     // prevent a player from adding him/herself as a friend
                     // (that's just depressing)
-                    /*if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
+                    if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "You can't add yourself as a friend! Go befriend some other human beings.");
                         return true;
-                    }*/
+                    }
                     
                     FriendCraft.getPlayerRef(friendName, new PlayerRefCallback() {
                         
