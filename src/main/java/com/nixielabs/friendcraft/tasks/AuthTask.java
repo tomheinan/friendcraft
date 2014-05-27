@@ -54,39 +54,40 @@ public class AuthTask extends BukkitRunnable
         postRequest.setEntity(body);
         
         HttpClient httpClient = new DefaultHttpClient();
-        HttpResponse response = null;
+        String token = null;
         try {
             FriendCraft.log("Authenticating as \"" + id + "\"");
-            response = httpClient.execute(postRequest);
+            HttpResponse response = httpClient.execute(postRequest);
+            
+            if (response.getStatusLine().getStatusCode() != 200) {
+                FriendCraft.error("Your plugin credentials are incorrect; please check them in config.yml");
+                FriendCraft.sharedInstance.disable();
+                return;
+            }
+            
+            Map<String, String> jsonResponse = null;
+            try {
+                jsonResponse = mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<HashMap<String, String>>(){});
+            } catch (Exception e) {
+                FriendCraft.error("Unable to parse FriendCraft authorization API response", e);
+                FriendCraft.sharedInstance.disable();
+                return;
+            }
+            
+            // this is our actual firebase auth token
+            token = jsonResponse.get("token");
+            
         } catch (Exception e) {
             FriendCraft.error("Unable to reach FriendCraft authentication server", e);
+            FriendCraft.sharedInstance.disable();
+            return;
+            
+        } finally {
             httpClient.getConnectionManager().shutdown();
-            FriendCraft.sharedInstance.disable();
-            return;
         }
-        
-        if (response.getStatusLine().getStatusCode() != 200) {
-            FriendCraft.error("Your plugin credentials are incorrect; please check them in config.yml");
-            FriendCraft.sharedInstance.disable();
-            return;
-        }
-        
-        Map<String, String> jsonResponse = null;
-        try {
-            jsonResponse = mapper.readValue(EntityUtils.toString(response.getEntity()), new TypeReference<HashMap<String, String>>(){});
-        } catch (Exception e) {
-            FriendCraft.error("Unable to parse FriendCraft authorization API response", e);
-            FriendCraft.sharedInstance.disable();
-            return;
-        }
-        
-        // this is our actual firebase auth token
-        String token = jsonResponse.get("token");
         
         FriendCraft.log("Connecting to Firebase");
         Firebase rootRef = new Firebase(FriendCraft.firebaseRoot);
         rootRef.auth(token, authListener);
-        
-        httpClient.getConnectionManager().shutdown();
     }
 }
