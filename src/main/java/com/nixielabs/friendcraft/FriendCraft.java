@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,11 +18,15 @@ import com.firebase.client.Firebase.AuthListener;
 import com.firebase.client.Firebase.CompletionListener;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.nixielabs.friendcraft.callbacks.PlayerDeregistrationCallback;
 import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
+import com.nixielabs.friendcraft.callbacks.PlayerRegistrationCallback;
 import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
 import com.nixielabs.friendcraft.commandexecutors.FriendCraftCommandExecutor;
 import com.nixielabs.friendcraft.eventlisteners.PluginEventListener;
 import com.nixielabs.friendcraft.managers.FriendsListManager;
+import com.nixielabs.friendcraft.managers.PlayerManager;
+import com.nixielabs.friendcraft.managers.PresenceManager;
 import com.nixielabs.friendcraft.tasks.AuthTask;
 
 public class FriendCraft extends JavaPlugin {
@@ -72,8 +77,14 @@ public class FriendCraft extends JavaPlugin {
             public void onAuthSuccess(Object authData) {
                 FriendCraft.sharedInstance.authData = authData;
                 
-                // register friends lists for all currently online players
-                FriendsListManager.sharedInstance.registerAll();
+                // register all currently online players
+                PlayerManager.sharedInstance.registerAll(new PlayerRegistrationCallback() {
+                    
+                    public void onRegistration(Player player, UUID uuid) {
+                        PresenceManager.noteArrival(player, uuid);
+                        FriendsListManager.sharedInstance.pin(player, uuid);
+                    }
+                });
                 
                 // register for bukkit events
                 if (eventListener == null) { eventListener = new PluginEventListener(); }
@@ -126,7 +137,13 @@ public class FriendCraft extends JavaPlugin {
         HandlerList.unregisterAll(eventListener);
         
         // deregister friends lists for all currently online players
-        FriendsListManager.sharedInstance.deregisterAll();
+        PlayerManager.sharedInstance.deregisterAll(new PlayerDeregistrationCallback() {
+            
+            public void onDeregistration(UUID uuid) {
+                PresenceManager.noteDeparture(uuid);
+                FriendsListManager.sharedInstance.unpin(uuid);
+            }
+        });
 
         // disconnect from firebase
         if (authData != null) {

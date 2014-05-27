@@ -19,7 +19,7 @@ public class Friend implements Comparable<Friend>
     }
     
     private final FriendsList list;
-    private final UUID playerId;
+    private final UUID uuid;
     private String name;
     private Status status;
     private String source;
@@ -27,10 +27,10 @@ public class Friend implements Comparable<Friend>
     private final Firebase playerRef;
     private final ValueEventListener playerListener;
     
-    public Friend(FriendsList list, Firebase playerRef, UUID playerId, String playerName)
+    public Friend(FriendsList list, Firebase playerRef, UUID uuid, String playerName)
     {
         this.list = list;
-        this.playerId = playerId;
+        this.uuid = uuid;
         this.name = playerName;
         
         this.status = Status.UNKNOWN;
@@ -62,8 +62,6 @@ public class Friend implements Comparable<Friend>
                 }
                 
                 if (oldStatus != Friend.this.status) {
-                    Friend.this.list.render();
-                    
                     if (Friend.this.status == Status.PLUGIN) {
                         String pluginId = (String) FriendCraft.sharedInstance.getConfig().getConfigurationSection("authentication").getValues(false).get("id");
                         if (Friend.this.source.equalsIgnoreCase(pluginId)) {
@@ -92,7 +90,7 @@ public class Friend implements Comparable<Friend>
         this.playerRef.addValueEventListener(playerListener);
     }
     
-    public UUID getUniqueId() { return playerId; }
+    public UUID getUniqueId() { return uuid; }
     public String getName() { return name; }
     public Status getStatus() { return status; }
     public String getSource() { return source; }
@@ -160,7 +158,7 @@ public class Friend implements Comparable<Friend>
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((playerId == null) ? 0 : playerId.hashCode());
+        result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
         return result;
     }
 
@@ -172,11 +170,11 @@ public class Friend implements Comparable<Friend>
         if (!(obj instanceof Friend)) { return false; }
         
         Friend other = (Friend) obj;
-        if (playerId == null) {
-            if (other.playerId != null) {
+        if (uuid == null) {
+            if (other.uuid != null) {
                 return false;
             }
-        } else if (!playerId.equals(other.playerId)) {
+        } else if (!uuid.equals(other.uuid)) {
             return false;
         }
         

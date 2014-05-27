@@ -1,5 +1,11 @@
 package com.nixielabs.friendcraft.commandexecutors;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -9,10 +15,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.nixielabs.friendcraft.FriendCraft;
 import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
+import com.nixielabs.friendcraft.callbacks.UUIDCallback;
 import com.nixielabs.friendcraft.managers.FriendsListManager;
 import com.nixielabs.friendcraft.models.FriendsList;
+import com.nixielabs.friendcraft.tasks.UUIDTask;
 
 public class FriendCraftCommandExecutor implements CommandExecutor
 {
@@ -26,6 +35,15 @@ public class FriendCraftCommandExecutor implements CommandExecutor
             
             final Player currentPlayer = (Player) sender;
             final FriendsList friendsList = FriendsListManager.sharedInstance.getList(currentPlayer);
+            
+            if (friendsList == null) {
+                currentPlayer.sendMessage(
+                    ChatColor.YELLOW + "FriendCraft is currently disabled for your account. " +
+                    "Please contact your server administrator for assistance."
+                );
+                
+                return true;
+            }
             
             if (args.length > 0) {
                 String action = args[0];
@@ -86,7 +104,47 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                         }
                         
                         public void onNotFound() {
-                            currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named " + ChatColor.WHITE + friendName + ChatColor.YELLOW + ". Sorry!");
+                            List<String> friendNames = new ArrayList<String>();
+                            friendNames.add(friendName);
+                            
+                            UUIDTask uuidTask = new UUIDTask(friendNames, new UUIDCallback() {
+                                
+                                public void onResult(Map<String, UUID> result) {
+                                    Set<Entry<String, UUID>> entries = result.entrySet();
+                                    if (entries.size() == 0) {
+                                        currentPlayer.sendMessage(
+                                            ChatColor.YELLOW + "FriendCraft can't find a player named " +
+                                            ChatColor.WHITE + friendName + ChatColor.YELLOW + ". Sorry!"
+                                        );
+                                    } else {
+                                        Iterator<Entry<String, UUID>> it = entries.iterator();
+                                        Entry<String, UUID> entry = it.next();
+                                        
+                                        final String playerName = entry.getKey();
+                                        final UUID playerId = entry.getValue();
+                                        
+                                        Firebase playerRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + playerId.toString());
+                                        playerRef.child("name").setValue(playerName, new Firebase.CompletionListener() {
+
+                                            public void onComplete(FirebaseError error, Firebase ref) {
+                                                if (error == null) {
+                                                    // index this player by name
+                                                    Firebase indexPlayerByNameRef = new Firebase(FriendCraft.firebaseRoot + "/index/players/by-name");
+                                                    indexPlayerByNameRef.child(playerName.toLowerCase()).setValue(playerId.toString());
+                                                    
+                                                    // add player to friends list
+                                                    friendsList.add(playerId);
+                                                    
+                                                } else {
+                                                    FriendCraft.error(error.getMessage());
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                            
+                            uuidTask.runTaskAsynchronously(FriendCraft.sharedInstance);
                         }
                     });
                     
@@ -124,7 +182,7 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                 } else if (action.equalsIgnoreCase("show")) {
                     boolean enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
                     if (enableSidebar) {
-                        friendsList.showSidebar();
+                        //friendsList.showSidebar();
                     } else {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled.");
                     }
@@ -134,7 +192,7 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                 } else if (action.equalsIgnoreCase("hide")) {
                     boolean enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
                     if (enableSidebar) {
-                        friendsList.hideSidebar();
+                        //friendsList.hideSidebar();
                     } else {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled.");
                     }
