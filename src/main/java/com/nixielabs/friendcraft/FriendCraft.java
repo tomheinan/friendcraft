@@ -1,18 +1,15 @@
 package com.nixielabs.friendcraft;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.firebase.client.DataSnapshot;
@@ -24,7 +21,7 @@ import com.firebase.client.ValueEventListener;
 import com.nixielabs.friendcraft.callbacks.PlayerDeregistrationCallback;
 import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
 import com.nixielabs.friendcraft.callbacks.PlayerRegistrationCallback;
-import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
+//import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
 import com.nixielabs.friendcraft.commandexecutors.FriendCraftCommandExecutor;
 import com.nixielabs.friendcraft.eventlisteners.PluginEventListener;
 import com.nixielabs.friendcraft.managers.FriendsListManager;

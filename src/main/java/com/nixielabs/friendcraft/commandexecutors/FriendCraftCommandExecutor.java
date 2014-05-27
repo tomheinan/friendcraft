@@ -18,10 +18,10 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.nixielabs.friendcraft.FriendCraft;
 import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
-import com.nixielabs.friendcraft.callbacks.UUIDCallback;
+import com.nixielabs.friendcraft.callbacks.UUIDLookupCallback;
 import com.nixielabs.friendcraft.managers.FriendsListManager;
 import com.nixielabs.friendcraft.models.FriendsList;
-import com.nixielabs.friendcraft.tasks.UUIDTask;
+import com.nixielabs.friendcraft.tasks.UUIDLookupTask;
 
 public class FriendCraftCommandExecutor implements CommandExecutor
 {
@@ -107,7 +107,7 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                             List<String> friendNames = new ArrayList<String>();
                             friendNames.add(friendName);
                             
-                            UUIDTask uuidTask = new UUIDTask(friendNames, new UUIDCallback() {
+                            UUIDLookupTask uuidTask = new UUIDLookupTask(friendNames, new UUIDLookupCallback() {
                                 
                                 public void onResult(Map<String, UUID> result) {
                                     Set<Entry<String, UUID>> entries = result.entrySet();

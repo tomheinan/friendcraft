@@ -18,15 +18,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.callbacks.UUIDCallback;
+import com.nixielabs.friendcraft.callbacks.UUIDLookupCallback;
 
-public class UUIDTask extends BukkitRunnable
+public class UUIDLookupTask extends BukkitRunnable
 {
     private static final String apiUrl = "https://api.mojang.com/profiles/minecraft";
     private final List<String> playerNames;
-    private final UUIDCallback callback;
+    private final UUIDLookupCallback callback;
     
-    public UUIDTask(List<String> playerNames, UUIDCallback callback)
+    public UUIDLookupTask(List<String> playerNames, UUIDLookupCallback callback)
     {
         this.playerNames = playerNames;
         this.callback = callback;

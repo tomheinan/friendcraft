@@ -17,8 +17,8 @@ import org.bukkit.entity.Player;
 import com.nixielabs.friendcraft.FriendCraft;
 import com.nixielabs.friendcraft.callbacks.PlayerDeregistrationCallback;
 import com.nixielabs.friendcraft.callbacks.PlayerRegistrationCallback;
-import com.nixielabs.friendcraft.callbacks.UUIDCallback;
-import com.nixielabs.friendcraft.tasks.UUIDTask;
+import com.nixielabs.friendcraft.callbacks.UUIDLookupCallback;
+import com.nixielabs.friendcraft.tasks.UUIDLookupTask;
 
 public class PlayerManager
 {
@@ -89,7 +89,7 @@ public class PlayerManager
             playerNames.add(player.getName());
         }
         
-        UUIDCallback uuidCallback = new UUIDCallback() {
+        UUIDLookupCallback uuidCallback = new UUIDLookupCallback() {
             
             public void onResult(Map<String, UUID> result) {
                 Iterator<Player> itInner = players.iterator();
@@ -124,7 +124,7 @@ public class PlayerManager
             }
         };
         
-        UUIDTask uuidTask = new UUIDTask(playerNames, uuidCallback);
+        UUIDLookupTask uuidTask = new UUIDLookupTask(playerNames, uuidCallback);
         uuidTask.runTaskAsynchronously(FriendCraft.sharedInstance);
     }
 }
