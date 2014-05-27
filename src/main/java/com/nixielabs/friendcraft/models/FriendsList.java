@@ -6,12 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -20,16 +16,12 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.nixielabs.friendcraft.FriendCraft;
 import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
+import com.nixielabs.friendcraft.managers.PlayerManager;
 
 public class FriendsList
 {
     private final Player owner;
     private final List<Friend> friends;
-    
-    private Scoreboard sidebar;
-    private final Scoreboard blank = Bukkit.getScoreboardManager().getNewScoreboard();
-    private final boolean enableSidebar;
-    private boolean showSidebar = true;
     
     private final Firebase friendsListRef;
     private final ChildEventListener friendsListListener;
@@ -38,9 +30,8 @@ public class FriendsList
     {
         this.owner = owner;
         this.friends = Collections.synchronizedList(new ArrayList<Friend>());
-        this.enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
         
-        friendsListRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + owner.getUniqueId().toString() + "/friends");
+        friendsListRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + PlayerManager.sharedInstance.getUUID(owner) + "/friends");
         friendsListListener = new ChildEventListener() {
 
             public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
@@ -57,7 +48,6 @@ public class FriendsList
                         synchronized(friends) {
                             friends.add(new Friend(FriendsList.this, playerRef, playerId, playerName));
                             Collections.sort(friends);
-                            render();
                         }
                     }
                 });
@@ -70,7 +60,6 @@ public class FriendsList
                 synchronized(friends) {
                     friends.remove(friend);
                     friend.recycle();
-                    render();
                 }
             }
         };
@@ -174,42 +163,6 @@ public class FriendsList
         }
         
         return null;
-    }
-    
-    public void showSidebar()
-    {
-        showSidebar = true;
-        render();
-    }
-    
-    public void hideSidebar()
-    {
-        showSidebar = false;
-        render();
-    }
-    
-    public void render()
-    {
-        if (enableSidebar && owner.isOnline()) {
-            if (showSidebar) {
-                sidebar = Bukkit.getScoreboardManager().getNewScoreboard();
-                Objective friendsObjective = sidebar.registerNewObjective("friends", "dummy");
-                friendsObjective.setDisplayName(ChatColor.YELLOW + "Friends");
-                friendsObjective.setDisplaySlot(DisplaySlot.SIDEBAR);
-                
-                synchronized(friends) {
-                    Iterator<Friend> it = friends.iterator();
-                    while (it.hasNext()) {
-                        Friend friend = it.next();
-                        friendsObjective.getScore(friend.getDisplayName()).setScore(0);
-                    }
-                }
-                
-                owner.setScoreboard(sidebar);
-            } else {
-                owner.setScoreboard(blank);
-            }
-        }
     }
     
     public Player getOwner()

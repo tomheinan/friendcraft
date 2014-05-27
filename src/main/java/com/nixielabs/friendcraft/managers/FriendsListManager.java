@@ -1,13 +1,10 @@
 package com.nixielabs.friendcraft.managers;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.nixielabs.friendcraft.models.FriendsList;
@@ -20,58 +17,37 @@ public class FriendsListManager
     
     private FriendsListManager() { /* restrict direct instantiation */ }
     
-    public void register(Player player)
+    public void pin(Player player, UUID uuid)
     {
-        if (getListForPlayer(player) == null) {
-            synchronized(lists) {
-                FriendsList list = new FriendsList(player);
-                lists.put(player.getUniqueId(), list);
+        synchronized(lists) {
+            if (lists.get(uuid) == null) {
+                lists.put(uuid, new FriendsList(player));
             }
         }
     }
     
-    public void deregister(Player player)
+    public void unpin(UUID uuid)
     {
-        FriendsList list;
+        FriendsList list = null;
         synchronized(lists) {
-            list = lists.remove(player.getUniqueId());
+            list = lists.remove(uuid);
         }
         
         if (list != null) {
-            list.hideSidebar();
             list.recycle();
         }
     }
     
-    public void registerAll()
-    {
-        Player[] players = Bukkit.getServer().getOnlinePlayers();
-        for (int i = 0; i < players.length; i++) {
-            Player player = players[i];
-            register(player);
-        }
-    }
-    
-    public void deregisterAll()
-    {
-        synchronized(lists) {
-            Collection<FriendsList> friendsLists = lists.values();
-            Iterator<FriendsList> it = friendsLists.iterator();
-            
-            while (it.hasNext()) {
-                FriendsList list = it.next();
-                list.hideSidebar();
-                list.recycle();
+    public FriendsList getList(Player player) {
+        UUID uuid = PlayerManager.sharedInstance.getUUID(player);
+        FriendsList list = null;
+        
+        if (uuid != null) {
+            synchronized(lists) {
+                list = lists.get(uuid);
             }
-            
-            lists.clear();
         }
-    }
-    
-    public FriendsList getListForPlayer(Player player)
-    {
-        synchronized(lists) {
-            return lists.get(player.getUniqueId());
-        }
+        
+        return list;
     }
 }
