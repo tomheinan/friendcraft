@@ -1,11 +1,5 @@
 package com.nixielabs.friendcraft.commandexecutors;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -15,13 +9,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
 import com.nixielabs.friendcraft.FriendCraft;
 import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
-import com.nixielabs.friendcraft.callbacks.UUIDLookupCallback;
 import com.nixielabs.friendcraft.managers.FriendsListManager;
 import com.nixielabs.friendcraft.models.FriendsList;
-import com.nixielabs.friendcraft.tasks.UUIDLookupTask;
 
 public class FriendCraftCommandExecutor implements CommandExecutor
 {
@@ -92,10 +83,10 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     
                     // prevent a player from adding him/herself as a friend
                     // (that's just depressing)
-                    if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
+                    /*if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "You can't add yourself as a friend! Go befriend some other human beings.");
                         return true;
-                    }
+                    }*/
                     
                     FriendCraft.getPlayerRef(friendName, new PlayerRefCallback() {
                         
@@ -104,47 +95,10 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                         }
                         
                         public void onNotFound() {
-                            List<String> friendNames = new ArrayList<String>();
-                            friendNames.add(friendName);
-                            
-                            UUIDLookupTask uuidTask = new UUIDLookupTask(friendNames, new UUIDLookupCallback() {
-                                
-                                public void onResult(Map<String, UUID> result) {
-                                    Set<Entry<String, UUID>> entries = result.entrySet();
-                                    if (entries.size() == 0) {
-                                        currentPlayer.sendMessage(
-                                            ChatColor.YELLOW + "FriendCraft can't find a player named " +
-                                            ChatColor.WHITE + friendName + ChatColor.YELLOW + ". Sorry!"
-                                        );
-                                    } else {
-                                        Iterator<Entry<String, UUID>> it = entries.iterator();
-                                        Entry<String, UUID> entry = it.next();
-                                        
-                                        final String playerName = entry.getKey();
-                                        final UUID playerId = entry.getValue();
-                                        
-                                        Firebase playerRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + playerId.toString());
-                                        playerRef.child("name").setValue(playerName, new Firebase.CompletionListener() {
-
-                                            public void onComplete(FirebaseError error, Firebase ref) {
-                                                if (error == null) {
-                                                    // index this player by name
-                                                    Firebase indexPlayerByNameRef = new Firebase(FriendCraft.firebaseRoot + "/index/players/by-name");
-                                                    indexPlayerByNameRef.child(playerName.toLowerCase()).setValue(playerId.toString());
-                                                    
-                                                    // add player to friends list
-                                                    friendsList.add(playerId);
-                                                    
-                                                } else {
-                                                    FriendCraft.error(error.getMessage());
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                            
-                            uuidTask.runTaskAsynchronously(FriendCraft.sharedInstance);
+                            currentPlayer.sendMessage(
+                                ChatColor.YELLOW + "FriendCraft can't find a player named " +
+                                ChatColor.WHITE + friendName + ChatColor.YELLOW + ". Sorry!"
+                            );
                         }
                     });
                     

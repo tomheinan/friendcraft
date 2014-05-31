@@ -1,7 +1,13 @@
 package com.nixielabs.friendcraft;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +27,7 @@ import com.firebase.client.ValueEventListener;
 import com.nixielabs.friendcraft.callbacks.PlayerDeregistrationCallback;
 import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
 import com.nixielabs.friendcraft.callbacks.PlayerRegistrationCallback;
+import com.nixielabs.friendcraft.callbacks.UUIDLookupCallback;
 //import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
 import com.nixielabs.friendcraft.commandexecutors.FriendCraftCommandExecutor;
 import com.nixielabs.friendcraft.eventlisteners.PluginEventListener;
@@ -28,6 +35,7 @@ import com.nixielabs.friendcraft.managers.FriendsListManager;
 import com.nixielabs.friendcraft.managers.PlayerManager;
 import com.nixielabs.friendcraft.managers.PresenceManager;
 import com.nixielabs.friendcraft.tasks.AuthTask;
+import com.nixielabs.friendcraft.tasks.UUIDLookupTask;
 
 public class FriendCraft extends JavaPlugin {
     //public static String firebaseRoot = "https://friendcraft.firebaseio.com"; // production
@@ -199,7 +207,45 @@ public class FriendCraft extends JavaPlugin {
 
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.getValue() == null) {
-                    callback.onNotFound();
+                    List<String> friendNames = new ArrayList<String>();
+                    friendNames.add(playerName);
+                    
+                    UUIDLookupTask uuidTask = new UUIDLookupTask(friendNames, new UUIDLookupCallback() {
+                        
+                        public void onResult(Map<String, UUID> result) {
+                            Set<Entry<String, UUID>> entries = result.entrySet();
+                            if (entries.size() == 0) {
+                                callback.onNotFound();
+                                
+                            } else {
+                                Iterator<Entry<String, UUID>> it = entries.iterator();
+                                Entry<String, UUID> entry = it.next();
+                                
+                                final String name = entry.getKey();
+                                final UUID uuid = entry.getValue();
+                                
+                                Firebase playerRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + uuid.toString());
+                                playerRef.child("name").setValue(name, new Firebase.CompletionListener() {
+
+                                    public void onComplete(FirebaseError error, Firebase ref) {
+                                        if (error == null) {
+                                            // index this player by name
+                                            Firebase indexPlayerByNameRef = new Firebase(FriendCraft.firebaseRoot + "/index/players/by-name");
+                                            indexPlayerByNameRef.child(name.toLowerCase()).setValue(uuid.toString());
+                                            
+                                            getPlayerRef(uuid, callback);
+                                            
+                                        } else {
+                                            FriendCraft.error(error.getMessage());
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    
+                    uuidTask.runTaskAsynchronously(FriendCraft.sharedInstance);
+                    
                 } else {
                     UUID playerId = UUID.fromString((String) snapshot.getValue());
                     getPlayerRef(playerId, callback);

@@ -3,7 +3,7 @@
 
     <groupId>com.tomheinan.friendcraft</groupId>
     <artifactId>FriendCraft</artifactId>
-    <version>1.0.0 alpha</version>
+    <version>1.0.0 beta</version>
     <name>FriendCraft</name>
     <url>http://tomheinan.com</url>
     <packaging>jar</packaging>
