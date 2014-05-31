@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import com.nixielabs.friendcraft.callbacks.PlayerDeregistrationCallback;
 import com.nixielabs.friendcraft.callbacks.PlayerRegistrationCallback;
 import com.nixielabs.friendcraft.managers.FriendsListManager;
+import com.nixielabs.friendcraft.managers.MessagingManager;
 import com.nixielabs.friendcraft.managers.PlayerManager;
 import com.nixielabs.friendcraft.managers.PresenceManager;
 
@@ -26,6 +27,7 @@ public final class PluginEventListener implements Listener
             public void onRegistration(Player player, UUID uuid) {
                 PresenceManager.noteArrival(player, uuid);
                 FriendsListManager.sharedInstance.pin(player, uuid);
+                MessagingManager.sharedInstance.pin(player, uuid);
             }
         });
     }
@@ -39,6 +41,7 @@ public final class PluginEventListener implements Listener
             public void onDeregistration(UUID uuid) {
                 PresenceManager.noteDeparture(uuid);
                 FriendsListManager.sharedInstance.unpin(uuid);
+                MessagingManager.sharedInstance.unpin(uuid);
             }
         });
     }

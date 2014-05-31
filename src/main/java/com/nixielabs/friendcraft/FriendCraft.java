@@ -30,6 +30,7 @@ import com.nixielabs.friendcraft.callbacks.PlayerRegistrationCallback;
 import com.nixielabs.friendcraft.callbacks.UUIDLookupCallback;
 //import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
 import com.nixielabs.friendcraft.commandexecutors.FriendCraftCommandExecutor;
+import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
 import com.nixielabs.friendcraft.eventlisteners.PluginEventListener;
 import com.nixielabs.friendcraft.managers.FriendsListManager;
 import com.nixielabs.friendcraft.managers.PlayerManager;
@@ -100,7 +101,7 @@ public class FriendCraft extends JavaPlugin {
                 
                 // link commands to their executors
                 getCommand("fc").setExecutor(new FriendCraftCommandExecutor());
-                //getCommand("msg").setExecutor(new MessagingCommandExecutor());
+                getCommand("msg").setExecutor(new MessagingCommandExecutor());
                 
                 // set up a disconnection callback
                 Firebase connectionRef = new Firebase(FriendCraft.firebaseRoot + "/.info/connected");

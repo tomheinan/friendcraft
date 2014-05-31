@@ -35,7 +35,7 @@ public class FriendsList
         friendsListListener = new ChildEventListener() {
 
             public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
-            public void onChildChanged(DataSnapshot snapshot, String previousChildName) { /* not relevant */}
+            public void onChildChanged(DataSnapshot snapshot, String previousChildName) { /* not relevant */ }
             public void onChildMoved(DataSnapshot snapshot, String previousChildName) { /* not relevant */ }
 
             public void onChildAdded(DataSnapshot snapshot, String previousChildName) {

@@ -7,11 +7,11 @@ commands:
     usage: '§eAvailable commands: §fadd <player>§e, §fremove <player>§e, §flist§e, §fshow§e, §fhide§e. See §f/fc help <command>§e for details.'
     permission: friendcraft.fc
     permission-message: '§eYou don''t have permission to manage your friends list.'
-  #msg:
-    #description: Send a message to another player via FriendCraft
-    #usage: '§eUsage: §f/msg <player> <message>'
-    #permission: friendcraft.msg
-    #permission-message: '§eYou don''t have permission to message other players.'
+  msg:
+    description: Send a message to another player via FriendCraft
+    usage: '§eUsage: §f/msg <player> <message>'
+    permission: friendcraft.msg
+    permission-message: '§eYou don''t have permission to message other players.'
 depend: []
 softdepend: []
 database: false
