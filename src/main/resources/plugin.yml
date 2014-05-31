@@ -12,6 +12,11 @@ commands:
     usage: '§eUsage: §f/msg <player> <message>'
     permission: friendcraft.msg
     permission-message: '§eYou don''t have permission to message other players.'
+  r:
+    description: Send a reply to the last person who messaged you
+    usage: '§eUsage: §f/r <message>'
+    permission: friendcraft.msg
+    permission-message: '§eYou don''t have permission to message other players.'
 depend: []
 softdepend: []
 database: false

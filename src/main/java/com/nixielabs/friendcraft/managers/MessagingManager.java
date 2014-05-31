@@ -49,6 +49,8 @@ public class MessagingManager
                 Firebase fromRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + PlayerManager.sharedInstance.getUUID(from) + "/conversations/" + playerId.toString()).push();
                 Firebase toRef = playerRef.child("conversations").child(PlayerManager.sharedInstance.getUUID(from).toString()).push();
                 Firebase notificationsRef = playerRef.child("notifications").child("unread").push();
+
+                Firebase replyToRef = playerRef.child("reply-to");
                 
                 Map<String, String> source = new HashMap<String, String>();
                 String pluginId = (String) FriendCraft.sharedInstance.getConfig().get("authentication.id");
@@ -64,6 +66,7 @@ public class MessagingManager
                 
                 Map<String, Object> message = new HashMap<String, Object>();
                 message.put("text", text);
+                message.put("sender", sender);
                 message.put("source", source);
                 message.put("timestamp", ServerValue.TIMESTAMP);
                 
@@ -71,12 +74,15 @@ public class MessagingManager
                 notification.put("type", "message");
                 notification.put("text", text);
                 notification.put("sender", sender);
+                notification.put("source", source);
                 notification.put("timestamp", ServerValue.TIMESTAMP);
                 
                 Long timestamp = new Long(System.currentTimeMillis());
                 fromRef.setValue(message, timestamp);
                 toRef.setValue(message, timestamp);
                 notificationsRef.setValue(notification, timestamp);
+                
+                replyToRef.setValue(PlayerManager.sharedInstance.getUUID(from).toString());
                 
                 from.sendMessage(ChatColor.LIGHT_PURPLE + " => <" + playerName + "> " + text);
             }
