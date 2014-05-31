@@ -20,6 +20,8 @@ public class MessagingManager
     
     private final Map<UUID, Inbox> inboxes = Collections.synchronizedMap(new HashMap<UUID, Inbox>());
     
+    private MessagingManager() { /* restrict direct instantiation */ }
+    
     public void pin(Player player, UUID uuid)
     {
         synchronized(inboxes) {
