@@ -6,8 +6,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -168,6 +172,29 @@ public class FriendsList
     public Player getOwner()
     {
         return owner;
+    }
+    
+    public Scoreboard getScoreboard()
+    {
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective objective = scoreboard.registerNewObjective("friends", "dummy");
+        objective.setDisplayName(ChatColor.YELLOW + "Friends");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        
+        synchronized(friends) {
+            Iterator<Friend> it = friends.iterator();
+            int count = friends.size();
+            while (it.hasNext()) {
+                Friend friend = it.next();
+                
+                String displayName = friend.getDisplayName();
+                displayName = displayName.substring(0, Math.min(displayName.length(), 16));
+                objective.getScore(displayName).setScore(count);
+                count--;
+            }
+        }
+        
+        return scoreboard;
     }
     
     @Override

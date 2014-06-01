@@ -35,6 +35,7 @@ import com.nixielabs.friendcraft.eventlisteners.PluginEventListener;
 import com.nixielabs.friendcraft.managers.FriendsListManager;
 import com.nixielabs.friendcraft.managers.PlayerManager;
 import com.nixielabs.friendcraft.managers.PresenceManager;
+import com.nixielabs.friendcraft.managers.ScoreboardManager;
 import com.nixielabs.friendcraft.tasks.AuthTask;
 import com.nixielabs.friendcraft.tasks.UUIDLookupTask;
 
@@ -68,6 +69,9 @@ public class FriendCraft extends JavaPlugin {
         configuration = this.getConfig();
         configuration.options().copyDefaults(true);
         this.saveConfig();
+        
+        // do scoreboard stuff as synchronously as possible
+        ScoreboardManager.sharedInstance.start();
         
         // set up firebase auth listener
         AuthListener authListener = new AuthListener() {
@@ -143,6 +147,9 @@ public class FriendCraft extends JavaPlugin {
     }
 
     public void onDisable() {
+        // stop updating scoreboards
+        ScoreboardManager.sharedInstance.stop();
+        
         // deregister events
         HandlerList.unregisterAll(eventListener);
         
