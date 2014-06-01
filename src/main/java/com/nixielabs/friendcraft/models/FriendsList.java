@@ -30,6 +30,8 @@ public class FriendsList
     private final Firebase friendsListRef;
     private final ChildEventListener friendsListListener;
     
+    private boolean showSidebar = true; // TODO will want to replace this with a SettingsManager or something in the future
+    
     public FriendsList(Player owner)
     {
         this.owner = owner;
@@ -174,23 +176,30 @@ public class FriendsList
         return owner;
     }
     
+    public void setShowSidebar(boolean show)
+    {
+        showSidebar = show;
+    }
+    
     public Scoreboard getScoreboard()
     {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective objective = scoreboard.registerNewObjective("friends", "dummy");
-        objective.setDisplayName(ChatColor.YELLOW + "Friends");
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        
-        synchronized(friends) {
-            Iterator<Friend> it = friends.iterator();
-            int count = friends.size();
-            while (it.hasNext()) {
-                Friend friend = it.next();
-                
-                String displayName = friend.getDisplayName();
-                displayName = displayName.substring(0, Math.min(displayName.length(), 16));
-                objective.getScore(displayName).setScore(count);
-                count--;
+        if (showSidebar) {
+            Objective objective = scoreboard.registerNewObjective("friends", "dummy");
+            objective.setDisplayName(ChatColor.YELLOW + "Friends");
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            
+            synchronized(friends) {
+                Iterator<Friend> it = friends.iterator();
+                int count = friends.size();
+                while (it.hasNext()) {
+                    Friend friend = it.next();
+                    
+                    String displayName = friend.getDisplayName();
+                    displayName = displayName.substring(0, Math.min(displayName.length(), 16));
+                    objective.getScore(displayName).setScore(count);
+                    count--;
+                }
             }
         }
         
