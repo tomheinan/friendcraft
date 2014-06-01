@@ -43,8 +43,9 @@ public class Inbox
                     String text = (String) snapshot.child("text").getValue();
                     Long timestamp = (Long) snapshot.child("timestamp").getValue();
                     
-                    Date date = new Date(timestamp.longValue());
-                    FriendCraft.log(date.toString());
+                    // TODO do some fuzzy formatting here for older unread messages
+                    //Date date = new Date(timestamp.longValue());
+                    //FriendCraft.log(date.toString());
                     
                     if (Inbox.this.owner.isOnline()) {
                         Inbox.this.owner.sendMessage(ChatColor.LIGHT_PURPLE + "<" + senderName + "> " + text);
