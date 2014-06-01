@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.managers;
+package com.tomheinan.friendcraft.managers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,11 +14,11 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.callbacks.PlayerDeregistrationCallback;
-import com.nixielabs.friendcraft.callbacks.PlayerRegistrationCallback;
-import com.nixielabs.friendcraft.callbacks.UUIDLookupCallback;
-import com.nixielabs.friendcraft.tasks.UUIDLookupTask;
+import com.tomheinan.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.callbacks.PlayerDeregistrationCallback;
+import com.tomheinan.friendcraft.callbacks.PlayerRegistrationCallback;
+import com.tomheinan.friendcraft.callbacks.UUIDLookupCallback;
+import com.tomheinan.friendcraft.tasks.UUIDLookupTask;
 
 public class PlayerManager
 {

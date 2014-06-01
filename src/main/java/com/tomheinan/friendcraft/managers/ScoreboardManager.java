@@ -1,7 +1,7 @@
-package com.nixielabs.friendcraft.managers;
+package com.tomheinan.friendcraft.managers;
 
-import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.tasks.ScoreboardTask;
+import com.tomheinan.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.tasks.ScoreboardTask;
 
 public class ScoreboardManager
 {

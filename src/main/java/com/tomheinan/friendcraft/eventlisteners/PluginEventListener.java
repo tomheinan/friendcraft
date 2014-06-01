@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.eventlisteners;
+package com.tomheinan.friendcraft.eventlisteners;
 
 import java.util.UUID;
 
@@ -9,12 +9,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import com.nixielabs.friendcraft.callbacks.PlayerDeregistrationCallback;
-import com.nixielabs.friendcraft.callbacks.PlayerRegistrationCallback;
-import com.nixielabs.friendcraft.managers.FriendsListManager;
-import com.nixielabs.friendcraft.managers.MessagingManager;
-import com.nixielabs.friendcraft.managers.PlayerManager;
-import com.nixielabs.friendcraft.managers.PresenceManager;
+import com.tomheinan.friendcraft.callbacks.PlayerDeregistrationCallback;
+import com.tomheinan.friendcraft.callbacks.PlayerRegistrationCallback;
+import com.tomheinan.friendcraft.managers.FriendsListManager;
+import com.tomheinan.friendcraft.managers.MessagingManager;
+import com.tomheinan.friendcraft.managers.PlayerManager;
+import com.tomheinan.friendcraft.managers.PresenceManager;
 
 public final class PluginEventListener implements Listener
 {

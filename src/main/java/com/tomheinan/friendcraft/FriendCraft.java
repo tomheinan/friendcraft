@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft;
+package com.tomheinan.friendcraft;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,20 +24,20 @@ import com.firebase.client.Firebase.AuthListener;
 import com.firebase.client.Firebase.CompletionListener;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.nixielabs.friendcraft.callbacks.PlayerDeregistrationCallback;
-import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
-import com.nixielabs.friendcraft.callbacks.PlayerRegistrationCallback;
-import com.nixielabs.friendcraft.callbacks.UUIDLookupCallback;
 //import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
-import com.nixielabs.friendcraft.commandexecutors.FriendCraftCommandExecutor;
-import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
-import com.nixielabs.friendcraft.eventlisteners.PluginEventListener;
-import com.nixielabs.friendcraft.managers.FriendsListManager;
-import com.nixielabs.friendcraft.managers.PlayerManager;
-import com.nixielabs.friendcraft.managers.PresenceManager;
-import com.nixielabs.friendcraft.managers.ScoreboardManager;
-import com.nixielabs.friendcraft.tasks.AuthTask;
-import com.nixielabs.friendcraft.tasks.UUIDLookupTask;
+import com.tomheinan.friendcraft.callbacks.PlayerDeregistrationCallback;
+import com.tomheinan.friendcraft.callbacks.PlayerRefCallback;
+import com.tomheinan.friendcraft.callbacks.PlayerRegistrationCallback;
+import com.tomheinan.friendcraft.callbacks.UUIDLookupCallback;
+import com.tomheinan.friendcraft.commandexecutors.FriendCraftCommandExecutor;
+import com.tomheinan.friendcraft.commandexecutors.MessagingCommandExecutor;
+import com.tomheinan.friendcraft.eventlisteners.PluginEventListener;
+import com.tomheinan.friendcraft.managers.FriendsListManager;
+import com.tomheinan.friendcraft.managers.PlayerManager;
+import com.tomheinan.friendcraft.managers.PresenceManager;
+import com.tomheinan.friendcraft.managers.ScoreboardManager;
+import com.tomheinan.friendcraft.tasks.AuthTask;
+import com.tomheinan.friendcraft.tasks.UUIDLookupTask;
 
 public class FriendCraft extends JavaPlugin {
     //public static String firebaseRoot = "https://friendcraft.firebaseio.com"; // production

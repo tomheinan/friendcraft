@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.tasks;
+package com.tomheinan.friendcraft.tasks;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -17,8 +17,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.callbacks.UUIDLookupCallback;
+import com.tomheinan.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.callbacks.UUIDLookupCallback;
 
 public class UUIDLookupTask extends BukkitRunnable
 {

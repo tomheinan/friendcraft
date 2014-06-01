@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.models;
+package com.tomheinan.friendcraft.models;
 
 import java.util.Map;
 import java.util.UUID;
@@ -9,7 +9,7 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.nixielabs.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.FriendCraft;
 
 public class Friend implements Comparable<Friend>
 {

@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.commandexecutors;
+package com.tomheinan.friendcraft.commandexecutors;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -13,10 +13,10 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
-import com.nixielabs.friendcraft.managers.MessagingManager;
-import com.nixielabs.friendcraft.managers.PlayerManager;
+import com.tomheinan.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.callbacks.PlayerRefCallback;
+import com.tomheinan.friendcraft.managers.MessagingManager;
+import com.tomheinan.friendcraft.managers.PlayerManager;
 
 public class MessagingCommandExecutor implements CommandExecutor
 {

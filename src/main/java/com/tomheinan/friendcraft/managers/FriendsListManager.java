@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.managers;
+package com.tomheinan.friendcraft.managers;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
-import com.nixielabs.friendcraft.models.FriendsList;
+import com.tomheinan.friendcraft.models.FriendsList;
 
 public class FriendsListManager
 {

@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.commandexecutors;
+package com.tomheinan.friendcraft.commandexecutors;
 
 import java.util.UUID;
 
@@ -9,10 +9,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.firebase.client.Firebase;
-import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
-import com.nixielabs.friendcraft.managers.FriendsListManager;
-import com.nixielabs.friendcraft.models.FriendsList;
+import com.tomheinan.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.callbacks.PlayerRefCallback;
+import com.tomheinan.friendcraft.managers.FriendsListManager;
+import com.tomheinan.friendcraft.models.FriendsList;
 
 public class FriendCraftCommandExecutor implements CommandExecutor
 {

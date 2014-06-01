@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.managers;
+package com.tomheinan.friendcraft.managers;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,9 +10,9 @@ import org.bukkit.entity.Player;
 
 import com.firebase.client.Firebase;
 import com.firebase.client.ServerValue;
-import com.nixielabs.friendcraft.FriendCraft;
-import com.nixielabs.friendcraft.callbacks.PlayerRefCallback;
-import com.nixielabs.friendcraft.models.Inbox;
+import com.tomheinan.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.callbacks.PlayerRefCallback;
+import com.tomheinan.friendcraft.models.Inbox;
 
 public class MessagingManager
 {

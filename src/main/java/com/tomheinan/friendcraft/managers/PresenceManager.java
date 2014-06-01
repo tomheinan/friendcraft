@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.managers;
+package com.tomheinan.friendcraft.managers;
 
 import java.util.UUID;
 
@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.nixielabs.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.FriendCraft;
 
 public abstract class PresenceManager
 {

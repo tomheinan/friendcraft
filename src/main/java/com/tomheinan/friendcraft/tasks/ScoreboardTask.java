@@ -1,11 +1,11 @@
-package com.nixielabs.friendcraft.tasks;
+package com.tomheinan.friendcraft.tasks;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.nixielabs.friendcraft.managers.FriendsListManager;
-import com.nixielabs.friendcraft.models.FriendsList;
+import com.tomheinan.friendcraft.managers.FriendsListManager;
+import com.tomheinan.friendcraft.models.FriendsList;
 
 public class ScoreboardTask extends BukkitRunnable
 {

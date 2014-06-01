@@ -1,4 +1,4 @@
-package com.nixielabs.friendcraft.tasks;
+package com.tomheinan.friendcraft.tasks;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.firebase.client.Firebase;
 import com.firebase.client.Firebase.AuthListener;
-import com.nixielabs.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.FriendCraft;
 
 public class AuthTask extends BukkitRunnable
 {
