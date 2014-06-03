@@ -1,6 +1,6 @@
 name: FriendCraft
 version: "${project.version}"
-main: com.nixielabs.friendcraft.FriendCraft
+main: com.tomheinan.friendcraft.FriendCraft
 commands:
   fc:
     description: The primary command interface to FriendCraft
@@ -10,17 +10,19 @@ commands:
   msg:
     description: Send a message to another player via FriendCraft
     usage: '§eUsage: §f/msg <player> <message>'
+    aliases: [tell, m, t, whisper]
     permission: friendcraft.msg
     permission-message: '§eYou don''t have permission to message other players.'
   r:
     description: Send a reply to the last person who messaged you
     usage: '§eUsage: §f/r <message>'
+    aliases: reply
     permission: friendcraft.msg
     permission-message: '§eYou don''t have permission to message other players.'
 depend: []
 softdepend: []
 database: false
-website: "https://nixielabs.com/friendcraft"
+website: "https://tomheinan.com/friendcraft"
 description: ""
 author: "Tom Heinan"
 authors:

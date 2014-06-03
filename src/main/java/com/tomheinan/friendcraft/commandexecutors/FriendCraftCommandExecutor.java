@@ -83,10 +83,10 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     
                     // prevent a player from adding him/herself as a friend
                     // (that's just depressing)
-                    if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
+                    /*if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "You can't add yourself as a friend! Go befriend some other human beings.");
                         return true;
-                    }
+                    }*/
                     
                     FriendCraft.getPlayerRef(friendName, new PlayerRefCallback() {
                         
