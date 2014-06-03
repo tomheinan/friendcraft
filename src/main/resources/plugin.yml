@@ -4,7 +4,7 @@ main: com.tomheinan.friendcraft.FriendCraft
 commands:
   fc:
     description: The primary command interface to FriendCraft
-    usage: '§eAvailable commands: §fadd <player>§e, §fremove <player>§e, §flist§e, §fshow§e, §fhide§e. See §f/fc help <command>§e for details.'
+    usage: '§eAvailable commands: §fadd <player>§e, §fremove <player>§e, §flist§e, §fprivate <on/off>§e. See §f/fc help <command>§e for details.'
     permission: friendcraft.fc
     permission-message: '§eYou don''t have permission to manage your friends list.'
   msg:
@@ -20,7 +20,7 @@ commands:
     permission: friendcraft.msg
     permission-message: '§eYou don''t have permission to message other players.'
 depend: []
-softdepend: []
+softdepend: [Essentials]
 database: false
 website: "https://tomheinan.com/friendcraft"
 description: ""

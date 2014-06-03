@@ -9,9 +9,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.tomheinan.friendcraft.FriendCraft;
 import com.tomheinan.friendcraft.callbacks.PlayerRefCallback;
 import com.tomheinan.friendcraft.managers.FriendsListManager;
+import com.tomheinan.friendcraft.managers.PlayerManager;
 import com.tomheinan.friendcraft.models.FriendsList;
 
 public class FriendCraftCommandExecutor implements CommandExecutor
@@ -74,6 +76,13 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                         currentPlayer.sendMessage(new String[]{
                             ChatColor.YELLOW + "Hides the sidebar",
                             ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc hide"
+                        });
+                        return true;
+                        
+                    } else if (item.equalsIgnoreCase("private")) {
+                        currentPlayer.sendMessage(new String[]{
+                            ChatColor.YELLOW + "Turns private mode on or off.",
+                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc private <on/off>"
                         });
                         return true;
                     }
@@ -150,6 +159,37 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     } else {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled.");
                     }
+                    
+                    return true;
+                    
+                } else if (action.equalsIgnoreCase("private") && args.length > 1) {
+                    String onOff = args[1];
+                    boolean privateMode = false;
+                    final String successMessage;
+                    
+                    if (onOff == null || !(onOff.equalsIgnoreCase("on") || onOff.equalsIgnoreCase("off"))) {
+                        return false;
+                    }
+                    
+                    if (onOff.equalsIgnoreCase("on")) {
+                        privateMode = true;
+                        successMessage = ChatColor.YELLOW + "Enabled private mode.";
+                    } else {
+                        privateMode = false;
+                        successMessage = ChatColor.YELLOW + "Disabled private mode.";
+                    }
+                    
+                    Firebase privateModeSettingRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + PlayerManager.sharedInstance.getUUID(currentPlayer) + "/settings/private-mode");
+                    privateModeSettingRef.setValue(Boolean.valueOf(privateMode), new Firebase.CompletionListener() {
+
+                        public void onComplete(FirebaseError error, Firebase ref) {
+                            currentPlayer.sendMessage(new String[] {
+                                successMessage,
+                                ChatColor.YELLOW + "Note that while private mode is enabled, only players on your friends list will see your online status. " +
+                                "In addition, only players on your list will be able to send you messages (even if they're replying to you)."
+                            });
+                        }
+                    });
                     
                     return true;
                     

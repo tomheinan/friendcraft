@@ -21,6 +21,7 @@ public class Friend implements Comparable<Friend>
     private final FriendsList list;
     private final UUID uuid;
     private String name;
+    private Boolean privateMode;
     private Status status;
     private String source;
     
@@ -32,6 +33,7 @@ public class Friend implements Comparable<Friend>
         this.list = list;
         this.uuid = uuid;
         this.name = playerName;
+        this.privateMode = Boolean.FALSE;
         
         this.status = Status.UNKNOWN;
         this.source = new String();
@@ -45,7 +47,11 @@ public class Friend implements Comparable<Friend>
                 Friend.this.name = (String) snapshot.child("name").getValue();
                 Status oldStatus = Friend.this.status;
                 
-                if (snapshot.child("presence").getValue() == null) {
+                if (snapshot.child("settings/private-mode").getValue() != null) {
+                    Friend.this.privateMode = (Boolean) snapshot.child("settings/private-mode").getValue();
+                }
+                
+                if (snapshot.child("presence").getValue() == null || Friend.this.privateMode.booleanValue()) {
                     Friend.this.status = Status.OFFLINE;
                     Friend.this.source = null;
                 } else {
