@@ -20,7 +20,7 @@ import com.tomheinan.friendcraft.managers.PlayerManager;
 
 public class MessagingCommandExecutor implements CommandExecutor
 {
-    public boolean onCommand(CommandSender sender, Command command, String label, final String[] args)
+    public boolean onCommand(CommandSender sender, final Command command, String label, final String[] args)
     {
         if (!(sender instanceof Player)) {
             FriendCraft.error("The \"msg\" command may only be used by players");
@@ -34,7 +34,7 @@ public class MessagingCommandExecutor implements CommandExecutor
                 final String friendName = args[0];
                 String message = buildMessage(Arrays.copyOfRange(args, 1, args.length));
                 
-                MessagingManager.sendMessage(currentPlayer, friendName, message);
+                MessagingManager.sendMessage(currentPlayer, friendName, message, command.getName().toLowerCase());
                 return true;
             }
             
@@ -63,7 +63,7 @@ public class MessagingCommandExecutor implements CommandExecutor
                                     
                                 } else {
                                     String message = buildMessage(args);
-                                    MessagingManager.sendMessage(currentPlayer, playerName, message);
+                                    MessagingManager.sendMessage(currentPlayer, playerName, message, command.getName().toLowerCase());
                                 }
                             }
                         });

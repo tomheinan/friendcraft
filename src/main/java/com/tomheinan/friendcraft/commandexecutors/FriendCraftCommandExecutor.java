@@ -92,10 +92,10 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     
                     // prevent a player from adding him/herself as a friend
                     // (that's just depressing)
-                    /*if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
+                    if (friendName.equalsIgnoreCase(currentPlayer.getName())) {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "You can't add yourself as a friend! Go befriend some other human beings.");
                         return true;
-                    }*/
+                    }
                     
                     FriendCraft.getPlayerRef(friendName, new PlayerRefCallback() {
                         
@@ -183,11 +183,7 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     privateModeSettingRef.setValue(Boolean.valueOf(privateMode), new Firebase.CompletionListener() {
 
                         public void onComplete(FirebaseError error, Firebase ref) {
-                            currentPlayer.sendMessage(new String[] {
-                                successMessage,
-                                ChatColor.YELLOW + "Note that while private mode is enabled, only players on your friends list will see your online status. " +
-                                "In addition, only players on your list will be able to send you messages (even if they're replying to you)."
-                            });
+                            currentPlayer.sendMessage(successMessage);
                         }
                     });
                     

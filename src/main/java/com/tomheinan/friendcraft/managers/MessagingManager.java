@@ -2,6 +2,7 @@ package com.tomheinan.friendcraft.managers;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 
@@ -46,13 +47,14 @@ public class MessagingManager
         }
     }
     
-    public static void sendMessage(final Player from, final String to, final String text)
+    public static void sendMessage(final Player from, final String to, final String text, final String command)
     {
         FriendCraft.getPlayerRef(to, new PlayerRefCallback() {
             
             public void onFound(Firebase playerRef, UUID playerId, String playerName) {
-                Firebase fromRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + PlayerManager.sharedInstance.getUUID(from) + "/conversations/" + playerId.toString()).push();
-                Firebase toRef = playerRef.child("conversations").child(PlayerManager.sharedInstance.getUUID(from).toString()).push();
+                final UUID senderId = PlayerManager.sharedInstance.getUUID(from);
+                Firebase fromRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + senderId.toString() + "/conversations/" + playerId.toString()).push();
+                Firebase toRef = playerRef.child("conversations").child(senderId.toString()).push();
                 
                 final Firebase notificationsRef = playerRef.child("notifications").child("unread").push();
                 final Firebase replyToRef = playerRef.child("reply-to");
@@ -66,10 +68,13 @@ public class MessagingManager
                 if (!pluginName.equalsIgnoreCase("a friendly name for your server here")) {
                     source.put("name", pluginName);
                 }
+                if (command != null) {
+                    source.put("command", command);
+                }
                 
                 final Map<String, String> sender = new HashMap<String, String>();
                 sender.put("name", from.getName());
-                sender.put("id", PlayerManager.sharedInstance.getUUID(from).toString());
+                sender.put("id", senderId.toString());
                 
                 // construct the message
                 Map<String, Object> message = new HashMap<String, Object>();
@@ -84,18 +89,31 @@ public class MessagingManager
                 from.sendMessage(ChatColor.LIGHT_PURPLE + " => <" + playerName + "> " + text);
                 
                 // check if the player has private mode enabled
-                playerRef.child("settings/private-mode").addListenerForSingleValueEvent(new ValueEventListener() {
+                playerRef.addListenerForSingleValueEvent(new ValueEventListener() {
 
                     public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
 
                     public void onDataChange(DataSnapshot snapshot) {
-                        Boolean privateMode = (Boolean) snapshot.getValue();
+                        Boolean privateMode = (Boolean) snapshot.child("settings/private-mode").getValue();
                         if (privateMode == null) {
                             privateMode = Boolean.FALSE;
                         }
                         
-                        // if private mode is *not* enabled, notify the recipient of the message
-                        if (!privateMode.booleanValue()) {
+                        Boolean inFriendsList = Boolean.FALSE;
+                        if (privateMode.booleanValue()) {
+                            Iterator<DataSnapshot> it = snapshot.child("friends").getChildren().iterator();
+                            while (it.hasNext()) {
+                                DataSnapshot friendEntry = it.next();
+                                UUID uuid = UUID.fromString(friendEntry.getName());
+                                if (senderId.equals(uuid)) {
+                                    inFriendsList = Boolean.TRUE;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // if private mode is off or sender is in recipient's list or it's a direct reply, notify recipient of the message
+                        if (!privateMode.booleanValue() || inFriendsList.booleanValue() || command.equalsIgnoreCase("r")) {
                             // construct the notification
                             Map<String, Object> notification = new HashMap<String, Object>();
                             notification.put("type", "message");
