@@ -4,7 +4,7 @@ main: com.tomheinan.friendcraft.FriendCraft
 commands:
   fc:
     description: The primary command interface to FriendCraft
-    usage: '§eAvailable commands: §fadd <player>§e, §fremove <player>§e, §flist§e, §fsidebar <on/off>§e, §fprivate <on/off>§e. See §f/fc help <command>§e for details.'
+    usage: '§eAvailable commands: §fadd <player>§e, §fremove <player>§e, §flist§e, §finfo <player>§e, §fsidebar <on/off>§e, §fprivate <on/off>§e. See §f/fc help <command>§e for details.'
     permission: friendcraft.fc
     permission-message: '§eYou don''t have permission to manage your friends list.'
   msg:

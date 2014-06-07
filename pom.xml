@@ -13,6 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <bukkitVersion>1.7.9-R0.2</bukkitVersion>
         <firebaseVersion>[1.0.7,)</firebaseVersion>
+        <prettytimeVersion>3.2.5.Final</prettytimeVersion>
     </properties>
   
     <repositories>
@@ -32,6 +33,11 @@
             <groupId>com.firebase</groupId>
             <artifactId>firebase-client</artifactId>
             <version>${firebaseVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ocpsoft.prettytime</groupId>
+            <artifactId>prettytime</artifactId>
+            <version>${prettytimeVersion}</version>
         </dependency>
     </dependencies>
 

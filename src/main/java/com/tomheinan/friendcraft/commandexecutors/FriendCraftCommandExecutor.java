@@ -1,5 +1,8 @@
 package com.tomheinan.friendcraft.commandexecutors;
 
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.ChatColor;
@@ -7,6 +10,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.ocpsoft.prettytime.PrettyTime;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -67,17 +71,17 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                         });
                         return true;
                         
-                    } else if (item.equalsIgnoreCase("show")) {
+                    } else if (item.equalsIgnoreCase("info")) {
                         currentPlayer.sendMessage(new String[]{
-                            ChatColor.YELLOW + "Shows the sidebar",
-                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc show"
+                            ChatColor.YELLOW + "Shows detailed information about a given player.",
+                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc info <player name>"
                         });
                         return true;
                         
-                    } else if (item.equalsIgnoreCase("hide")) {
+                    } else if (item.equalsIgnoreCase("sidebar")) {
                         currentPlayer.sendMessage(new String[]{
-                            ChatColor.YELLOW + "Hides the sidebar",
-                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc hide"
+                            ChatColor.YELLOW + "Turns the sidebar on or off.",
+                            ChatColor.YELLOW + "Usage: " + ChatColor.WHITE + "/fc sidebar <on/off>"
                         });
                         return true;
                         
@@ -142,6 +146,114 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     }
                     
                     currentPlayer.sendMessage(friendsList.toString());
+                    return true;
+                    
+                } else if (action.equalsIgnoreCase("info") && args.length > 1) {
+                    final String playerName = args[1];
+                    
+                    FriendCraft.getPlayerRef(playerName, new PlayerRefCallback() {
+                        
+                        public void onFound(Firebase playerRef, UUID playerId, final String playerName) {
+                            playerRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    Boolean privateMode = (Boolean) snapshot.child("settings/private-mode").getValue();
+                                    if (privateMode == null) {
+                                        privateMode = Boolean.FALSE;
+                                    }
+                                    
+                                    Boolean inFriendsList = Boolean.FALSE;
+                                    UUID currentPlayerId = PlayerManager.sharedInstance.getUUID(currentPlayer);
+                                    if (privateMode.booleanValue()) {
+                                        Iterator<DataSnapshot> it = snapshot.child("friends").getChildren().iterator();
+                                        while (it.hasNext()) {
+                                            DataSnapshot friendEntry = it.next();
+                                            UUID uuid = UUID.fromString(friendEntry.getName());
+                                            if (currentPlayerId.equals(uuid)) {
+                                                inFriendsList = Boolean.TRUE;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (!privateMode.booleanValue() || inFriendsList.booleanValue()) {
+                                        @SuppressWarnings("unchecked")
+                                        Map<String, Object> presence = (Map<String, Object>) snapshot.child("presence").getValue();
+                                        String pluginId = (String) FriendCraft.sharedInstance.getConfig().getConfigurationSection("authentication").getValues(false).get("id");
+                                        
+                                        if (presence != null && presence.get("plugin") != null) {
+                                            if (pluginId.equalsIgnoreCase((String) presence.get("plugin"))) {
+                                                currentPlayer.sendMessage(
+                                                    playerName + ChatColor.YELLOW + " is online and playing on this server."
+                                                );
+                                                
+                                            } else {
+                                                Firebase pluginNameRef = new Firebase(FriendCraft.firebaseRoot + "/plugins/" + ((String) presence.get("plugin")) + "/status/name");
+                                                pluginNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                                    public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+
+                                                    public void onDataChange(DataSnapshot snapshot) {
+                                                        String pluginName = (String) snapshot.getValue();
+                                                        currentPlayer.sendMessage(
+                                                            playerName + ChatColor.YELLOW + " is online and playing on the " + ChatColor.WHITE +
+                                                            pluginName + ChatColor.YELLOW + " server."
+                                                        );
+                                                    }
+                                                });
+                                            }
+                                        } else if (presence != null && presence.get("app") != null) {
+                                            currentPlayer.sendMessage(
+                                                playerName + ChatColor.YELLOW + " is online via the FriendCraft app."
+                                            );
+                                            
+                                        } else {
+                                            @SuppressWarnings("unchecked")
+                                            Map<String, Object> lastSeen = (Map<String, Object>) snapshot.child("last-seen").getValue();
+                                            
+                                            if (lastSeen != null) {
+                                                String lastPluginId = (String) lastSeen.get("plugin");
+                                                Long lastTimestamp = (Long) lastSeen.get("timestamp");
+                                                final Date lastSeenAt = new Date(lastTimestamp.longValue());
+                                                
+                                                Firebase pluginNameRef = new Firebase(FriendCraft.firebaseRoot + "/plugins/" + lastPluginId + "/status/name");
+                                                pluginNameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                                    public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+
+                                                    public void onDataChange(DataSnapshot snapshot) {
+                                                        String pluginName = (String) snapshot.getValue();
+                                                        PrettyTime pt = new PrettyTime();
+                                                        currentPlayer.sendMessage(
+                                                            playerName + ChatColor.YELLOW + " is offline; they were last seen " + ChatColor.WHITE +
+                                                            pt.format(lastSeenAt) + ChatColor.YELLOW + " on " + ChatColor.WHITE +
+                                                            pluginName + ChatColor.YELLOW + "."
+                                                        );
+                                                    }
+                                                });
+                                            } else {
+                                                currentPlayer.sendMessage(
+                                                    playerName + ChatColor.YELLOW + " is offline."
+                                                );
+                                            }
+                                        }
+                                        
+                                    } else {
+                                        currentPlayer.sendMessage(
+                                            playerName + ChatColor.YELLOW + " has chosen not to share their status."
+                                        );
+                                    }
+                                }
+                            });
+                        }
+                        
+                        public void onNotFound() {
+                            currentPlayer.sendMessage(ChatColor.YELLOW + "FriendCraft can't find a player named " + ChatColor.WHITE + playerName + ChatColor.YELLOW + ". Sorry!");
+                        }
+                    });
+                    
                     return true;
                     
                 } else if (action.equalsIgnoreCase("sidebar")) {

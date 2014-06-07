@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ServerValue;
 import com.tomheinan.friendcraft.FriendCraft;
 
 public abstract class PresenceManager
@@ -36,6 +37,9 @@ public abstract class PresenceManager
         
         // add this plugin to the player's presence state
         playerRef.child("presence").child("plugin").setValue(pluginId);
+        
+        // remove last seen info for cleanliness
+        playerRef.child("last-seen").removeValue();
     }
     
     public static void noteDeparture(UUID uuid)
@@ -43,12 +47,16 @@ public abstract class PresenceManager
         String pluginId = (String) FriendCraft.sharedInstance.getConfig().get("authentication.id");
         
         Firebase pluginPlayerRef = new Firebase(FriendCraft.firebaseRoot + "/plugins/" + pluginId + "/players/" + uuid.toString());
-        Firebase presenceRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + uuid.toString() + "/presence");
+        Firebase playerRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + uuid.toString());
         
         // remove the player from the plugin's list of players
         pluginPlayerRef.removeValue();
         
         // remove this plugin from the player's presence state
-        presenceRef.child("plugin").removeValue();
+        playerRef.child("presence/plugin").removeValue();
+        
+        // note the time we left and the server we were on
+        playerRef.child("last-seen/plugin").setValue(pluginId);
+        playerRef.child("last-seen/timestamp").setValue(ServerValue.TIMESTAMP);
     }
 }
