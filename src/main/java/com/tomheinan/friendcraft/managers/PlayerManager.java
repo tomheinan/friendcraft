@@ -2,8 +2,10 @@ package com.tomheinan.friendcraft.managers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,17 @@ public class PlayerManager
         }
     }
     
+    public void deregister(UUID uuid, PlayerDeregistrationCallback callback)
+    {
+        synchronized(ids) {
+            uuid = ids.remove(uuid);
+        }
+        
+        if (uuid != null) {
+            callback.onDeregistration(uuid);
+        }
+    }
+    
     public void deregisterAll(PlayerDeregistrationCallback callback)
     {
         synchronized(ids) {
@@ -77,6 +90,22 @@ public class PlayerManager
         }
         
         return uuid;
+    }
+    
+    public Set<UUID> getLocalUUIDs()
+    {
+        Set<UUID> localUUIDs = new HashSet<UUID>();
+        
+        synchronized(ids) {
+            Collection<UUID> col = ids.values();
+            Iterator<UUID> it = col.iterator();
+            
+            while (it.hasNext()) {
+                localUUIDs.add(it.next());
+            }
+        }
+        
+        return localUUIDs;
     }
     
     private void lookupPlayers(final List<Player> players, final PlayerRegistrationCallback callback)

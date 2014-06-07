@@ -94,7 +94,7 @@ public class Friend implements Comparable<Friend>
                 
                 // update scoreboard
                 boolean sidebarEnabled = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar", true);
-                if (sidebarEnabled) {
+                if (FriendCraft.sharedInstance.isEnabled() && sidebarEnabled) {
                     ScoreboardTask task = new ScoreboardTask(Friend.this.list);
                     task.runTask(FriendCraft.sharedInstance);
                 }

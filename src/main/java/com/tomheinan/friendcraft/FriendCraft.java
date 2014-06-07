@@ -21,7 +21,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.Firebase.AuthListener;
-import com.firebase.client.Firebase.CompletionListener;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.tomheinan.friendcraft.callbacks.PlayerDeregistrationCallback;
@@ -32,9 +31,11 @@ import com.tomheinan.friendcraft.commandexecutors.FriendCraftCommandExecutor;
 import com.tomheinan.friendcraft.commandexecutors.MessagingCommandExecutor;
 import com.tomheinan.friendcraft.eventlisteners.PluginEventListener;
 import com.tomheinan.friendcraft.managers.FriendsListManager;
+import com.tomheinan.friendcraft.managers.MessagingManager;
 import com.tomheinan.friendcraft.managers.PlayerManager;
 import com.tomheinan.friendcraft.managers.PresenceManager;
 import com.tomheinan.friendcraft.tasks.AuthTask;
+import com.tomheinan.friendcraft.tasks.PlayerCleanupTask;
 import com.tomheinan.friendcraft.tasks.UUIDLookupTask;
 
 public class FriendCraft extends JavaPlugin {
@@ -46,11 +47,13 @@ public class FriendCraft extends JavaPlugin {
 
     protected static Configuration configuration;
     protected static Logger logger = null;
+    protected static int cleanUpInterval = 60; // seconds
 
     protected Server server;
     protected File dataFolder;
     protected PluginEventListener eventListener;
     protected Object authData;
+    protected PlayerCleanupTask playerCleanupTask;
     public static FriendCraft sharedInstance;
 
     public void onEnable() {
@@ -98,6 +101,10 @@ public class FriendCraft extends JavaPlugin {
                 if (eventListener == null) { eventListener = new PluginEventListener(); }
                 server.getPluginManager().registerEvents(eventListener, FriendCraft.sharedInstance);
                 
+                // occasionally clean up ghosts
+                playerCleanupTask = new PlayerCleanupTask();
+                playerCleanupTask.runTaskTimerAsynchronously(FriendCraft.sharedInstance, 20 * cleanUpInterval, 20 * cleanUpInterval);
+                
                 // link commands to their executors
                 getCommand("fc").setExecutor(new FriendCraftCommandExecutor());
                 getCommand("msg").setExecutor(new MessagingCommandExecutor());
@@ -142,6 +149,9 @@ public class FriendCraft extends JavaPlugin {
     }
 
     public void onDisable() {
+        // stop cleanup task
+        playerCleanupTask.cancel();
+        
         // deregister events
         HandlerList.unregisterAll(eventListener);
         
@@ -151,29 +161,18 @@ public class FriendCraft extends JavaPlugin {
             public void onDeregistration(UUID uuid) {
                 PresenceManager.noteDeparture(uuid);
                 FriendsListManager.sharedInstance.unpin(uuid);
+                MessagingManager.sharedInstance.unpin(uuid);
             }
         });
 
         // disconnect from firebase
-        if (authData != null) {
-            log("Disconnecting from Firebase");
-            
-            String pluginId = (String) configuration.get("authentication.id");
-            Firebase pluginUpRef = new Firebase(firebaseRoot + "/plugins/" + pluginId + "/status/connected");
-            pluginUpRef.setValue(Boolean.FALSE);
-
-            // note: this is currently throwing a ConcurrentModificationException in 1.7.9
-            // i don't know why, but let's just let it do so...
-            Firebase rootRef = new Firebase(firebaseRoot);
-            rootRef.unauth(new CompletionListener() {
-
-                public void onComplete(FirebaseError err, Firebase ref) {
-                    log("Version " + getDescription().getVersion() + " disabled");
-                }
-            });
-        } else {
-            log("Version " + getDescription().getVersion() + " disabled");
-        }
+        log("Disconnecting from Firebase");
+        
+        String pluginId = (String) configuration.get("authentication.id");
+        Firebase pluginUpRef = new Firebase(firebaseRoot + "/plugins/" + pluginId + "/status/connected");
+        pluginUpRef.setValue(Boolean.FALSE);
+        
+        log("Version " + getDescription().getVersion() + " disabled");
     }
 
     public void disable() {
