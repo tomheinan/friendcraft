@@ -24,7 +24,6 @@ import com.firebase.client.Firebase.AuthListener;
 import com.firebase.client.Firebase.CompletionListener;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-//import com.nixielabs.friendcraft.commandexecutors.MessagingCommandExecutor;
 import com.tomheinan.friendcraft.callbacks.PlayerDeregistrationCallback;
 import com.tomheinan.friendcraft.callbacks.PlayerRefCallback;
 import com.tomheinan.friendcraft.callbacks.PlayerRegistrationCallback;
@@ -35,7 +34,6 @@ import com.tomheinan.friendcraft.eventlisteners.PluginEventListener;
 import com.tomheinan.friendcraft.managers.FriendsListManager;
 import com.tomheinan.friendcraft.managers.PlayerManager;
 import com.tomheinan.friendcraft.managers.PresenceManager;
-import com.tomheinan.friendcraft.managers.ScoreboardManager;
 import com.tomheinan.friendcraft.tasks.AuthTask;
 import com.tomheinan.friendcraft.tasks.UUIDLookupTask;
 
@@ -69,9 +67,6 @@ public class FriendCraft extends JavaPlugin {
         configuration = this.getConfig();
         configuration.options().copyDefaults(true);
         this.saveConfig();
-        
-        // do scoreboard stuff as synchronously as possible
-        ScoreboardManager.sharedInstance.start();
         
         // set up firebase auth listener
         AuthListener authListener = new AuthListener() {
@@ -147,9 +142,6 @@ public class FriendCraft extends JavaPlugin {
     }
 
     public void onDisable() {
-        // stop updating scoreboards
-        ScoreboardManager.sharedInstance.stop();
-        
         // deregister events
         HandlerList.unregisterAll(eventListener);
         

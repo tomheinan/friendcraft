@@ -10,6 +10,7 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import com.tomheinan.friendcraft.FriendCraft;
+import com.tomheinan.friendcraft.tasks.ScoreboardTask;
 
 public class Friend implements Comparable<Friend>
 {
@@ -89,6 +90,13 @@ public class Friend implements Comparable<Friend>
                     } else if (Friend.this.status == Status.APP) {
                         Friend.this.list.getOwner().sendMessage(Friend.this.getDisplayName() + ChatColor.YELLOW + " is online via the " + Friend.this.source + " app.");
                     }
+                }
+                
+                // update scoreboard
+                boolean sidebarEnabled = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar", true);
+                if (sidebarEnabled) {
+                    ScoreboardTask task = new ScoreboardTask(Friend.this.list);
+                    task.runTask(FriendCraft.sharedInstance);
                 }
             }
         };

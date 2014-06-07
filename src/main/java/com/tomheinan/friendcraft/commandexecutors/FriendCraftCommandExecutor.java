@@ -145,7 +145,7 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                 } else if (action.equalsIgnoreCase("show")) {
                     boolean enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
                     if (enableSidebar) {
-                        friendsList.setShowSidebar(true);
+                        //friendsList.setShowSidebar(true);
                     } else {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled.");
                     }
@@ -155,7 +155,7 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                 } else if (action.equalsIgnoreCase("hide")) {
                     boolean enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
                     if (enableSidebar) {
-                        friendsList.setShowSidebar(false);
+                        //friendsList.setShowSidebar(false);
                     } else {
                         currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled.");
                     }
