@@ -144,22 +144,39 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     currentPlayer.sendMessage(friendsList.toString());
                     return true;
                     
-                } else if (action.equalsIgnoreCase("show")) {
-                    boolean enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
-                    if (enableSidebar) {
-                        //friendsList.setShowSidebar(true);
-                    } else {
-                        currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled.");
-                    }
+                } else if (action.equalsIgnoreCase("sidebar")) {
+                    Firebase sidebarSettingRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + PlayerManager.sharedInstance.getUUID(currentPlayer) + "/settings/sidebar");
+                    boolean enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar", true);
                     
-                    return true;
-                    
-                } else if (action.equalsIgnoreCase("hide")) {
-                    boolean enableSidebar = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar");
                     if (enableSidebar) {
-                        //friendsList.setShowSidebar(false);
+                        if (args.length > 1) {
+                            String onOff = args[1];
+                            if (onOff.equalsIgnoreCase("on")) {
+                                sidebarSettingRef.setValue(Boolean.TRUE);
+                            } else if (onOff.equalsIgnoreCase("off")) {
+                                sidebarSettingRef.setValue(Boolean.FALSE);
+                            } else {
+                                return false;
+                            }
+                            
+                        } else {
+                            sidebarSettingRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    Boolean showSidebar = (Boolean) snapshot.getValue();
+                                    if (showSidebar == null) {
+                                        showSidebar = Boolean.TRUE;
+                                    }
+                                    
+                                    snapshot.getRef().setValue(Boolean.valueOf(!showSidebar.booleanValue()));
+                                }
+                            });
+                        }
+                        
                     } else {
-                        currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled.");
+                        currentPlayer.sendMessage(ChatColor.YELLOW + "Sorry, the FriendCraft sidebar is not currently enabled on this server.");
                     }
                     
                     return true;

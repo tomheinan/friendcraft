@@ -21,6 +21,7 @@ import com.firebase.client.ValueEventListener;
 import com.tomheinan.friendcraft.FriendCraft;
 import com.tomheinan.friendcraft.callbacks.PlayerRefCallback;
 import com.tomheinan.friendcraft.managers.PlayerManager;
+import com.tomheinan.friendcraft.tasks.ScoreboardTask;
 
 public class FriendsList
 {
@@ -30,7 +31,11 @@ public class FriendsList
     private final Firebase friendsListRef;
     private final ChildEventListener friendsListListener;
     
+    private final Firebase sidebarSettingRef;
+    private final ValueEventListener sidebarSettingListener;
+    
     private static final int MAX_SIDEBAR_SLOTS = 15; // client limitation
+    private boolean showSidebar = false;
     
     public FriendsList(Player owner)
     {
@@ -70,7 +75,30 @@ public class FriendsList
             }
         };
         
+        sidebarSettingRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + PlayerManager.sharedInstance.getUUID(owner) + "/settings/sidebar");
+        sidebarSettingListener = new ValueEventListener() {
+
+            public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+
+            public void onDataChange(DataSnapshot snapshot) {
+                Boolean showSidebar = (Boolean) snapshot.getValue();
+                if (showSidebar == null) {
+                    showSidebar = Boolean.TRUE;
+                }
+                
+                FriendsList.this.showSidebar = showSidebar.booleanValue();
+                
+                // update scoreboard
+                boolean sidebarEnabled = FriendCraft.sharedInstance.getConfig().getBoolean("enable-sidebar", true);
+                if (sidebarEnabled) {
+                    ScoreboardTask task = new ScoreboardTask(FriendsList.this);
+                    task.runTask(FriendCraft.sharedInstance);
+                }
+            }
+        };
+        
         friendsListRef.addChildEventListener(friendsListListener);
+        sidebarSettingRef.addValueEventListener(sidebarSettingListener);
     }
     
     public void add(final UUID playerId)
@@ -179,69 +207,71 @@ public class FriendsList
     public Scoreboard getScoreboard()
     {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective objective = scoreboard.registerNewObjective("friends", "dummy");
-        objective.setDisplayName(ChatColor.YELLOW + "Friends");
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        
-        List<String> onlineFriends = new ArrayList<String>();
-        List<String> offlineFriends = new ArrayList<String>();
-        
-        synchronized(friends) {
-            Iterator<Friend> it = friends.iterator();
+        if (showSidebar) {
+            Objective objective = scoreboard.registerNewObjective("friends", "dummy");
+            objective.setDisplayName(ChatColor.YELLOW + "Friends");
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
             
-            while (it.hasNext()) {
-                Friend friend = it.next();
+            List<String> onlineFriends = new ArrayList<String>();
+            List<String> offlineFriends = new ArrayList<String>();
+            
+            synchronized(friends) {
+                Iterator<Friend> it = friends.iterator();
                 
-                String displayName = friend.getDisplayName();
-                displayName = displayName.substring(0, Math.min(displayName.length(), 16));
-                if (friend.getStatus() == Friend.Status.OFFLINE || friend.getStatus() == Friend.Status.UNKNOWN) {
-                    offlineFriends.add(displayName);
-                } else {
-                    onlineFriends.add(displayName);
+                while (it.hasNext()) {
+                    Friend friend = it.next();
+                    
+                    String displayName = friend.getDisplayName();
+                    displayName = displayName.substring(0, Math.min(displayName.length(), 16));
+                    if (friend.getStatus() == Friend.Status.OFFLINE || friend.getStatus() == Friend.Status.UNKNOWN) {
+                        offlineFriends.add(displayName);
+                    } else {
+                        onlineFriends.add(displayName);
+                    }
                 }
             }
-        }
-        
-        // the total number of slots we have, plus one each for the headers, if present
-        int totalSlots = onlineFriends.size();
-        if (onlineFriends.size() > 0) {
-            totalSlots++;
-        }
-        if (offlineFriends.size() > 0) {
-            totalSlots++;
-        }
-        
-        // the "current slot", not to exceed the maximum number of slots available for the sidebar
-        int slot = Math.min(totalSlots, MAX_SIDEBAR_SLOTS);
-        
-        if (onlineFriends.size() > 0) {
-            String sectionHeader = ChatColor.YELLOW + "Online (" + Integer.toString(onlineFriends.size()) + ")";
-            objective.getScore(sectionHeader.substring(0, Math.min(sectionHeader.length(), 16))).setScore(slot);
-            slot--;
             
-            Iterator<String> it = onlineFriends.iterator();
-            int count = 0;
-            while(it.hasNext()) {
-                String displayName = it.next();
-                count++;
-                int more = onlineFriends.size() - count;
+            // the total number of slots we have, plus one each for the headers, if present
+            int totalSlots = onlineFriends.size();
+            if (onlineFriends.size() > 0) {
+                totalSlots++;
+            }
+            if (offlineFriends.size() > 0) {
+                totalSlots++;
+            }
+            
+            // the "current slot", not to exceed the maximum number of slots available for the sidebar
+            int slot = Math.min(totalSlots, MAX_SIDEBAR_SLOTS);
+            
+            if (onlineFriends.size() > 0) {
+                String sectionHeader = ChatColor.YELLOW + "Online (" + Integer.toString(onlineFriends.size()) + ")";
+                objective.getScore(sectionHeader.substring(0, Math.min(sectionHeader.length(), 16))).setScore(slot);
+                slot--;
                 
-                if (((offlineFriends.size() > 0 && slot == 2) || (offlineFriends.size() == 0 && slot == 1)) && more > 0) {
-                    String moreString = "and " + ChatColor.GREEN + Integer.toString(more + 1) + " more";
-                    objective.getScore(moreString.substring(0, Math.min(moreString.length(), 16))).setScore(slot);
-                    slot--;
-                    break;
-                } else {
-                    objective.getScore(displayName).setScore(slot);
-                    slot--;
+                Iterator<String> it = onlineFriends.iterator();
+                int count = 0;
+                while(it.hasNext()) {
+                    String displayName = it.next();
+                    count++;
+                    int more = onlineFriends.size() - count;
+                    
+                    if (((offlineFriends.size() > 0 && slot == 2) || (offlineFriends.size() == 0 && slot == 1)) && more > 0) {
+                        String moreString = "and " + ChatColor.GREEN + Integer.toString(more + 1) + " more";
+                        objective.getScore(moreString.substring(0, Math.min(moreString.length(), 16))).setScore(slot);
+                        slot--;
+                        break;
+                    } else {
+                        objective.getScore(displayName).setScore(slot);
+                        slot--;
+                    }
                 }
             }
-        }
-        
-        if (offlineFriends.size() > 0) {
-            String sectionHeader = ChatColor.YELLOW + "Offline (" + Integer.toString(offlineFriends.size()) + ")";
-            objective.getScore(sectionHeader.substring(0, Math.min(sectionHeader.length(), 16))).setScore(slot);
-            slot--;
+            
+            if (offlineFriends.size() > 0) {
+                String sectionHeader = ChatColor.YELLOW + "Offline (" + Integer.toString(offlineFriends.size()) + ")";
+                objective.getScore(sectionHeader.substring(0, Math.min(sectionHeader.length(), 16))).setScore(slot);
+                slot--;
+            }
         }
         
         return scoreboard;
@@ -280,6 +310,7 @@ public class FriendsList
     
     public void recycle()
     {
+        sidebarSettingRef.removeEventListener(sidebarSettingListener);
         friendsListRef.removeEventListener(friendsListListener);
         
         synchronized(friends) {
