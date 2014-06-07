@@ -8,8 +8,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.tomheinan.friendcraft.FriendCraft;
 import com.tomheinan.friendcraft.callbacks.PlayerRefCallback;
 import com.tomheinan.friendcraft.managers.FriendsListManager;
@@ -162,33 +164,55 @@ public class FriendCraftCommandExecutor implements CommandExecutor
                     
                     return true;
                     
-                } else if (action.equalsIgnoreCase("private") && args.length > 1) {
-                    String onOff = args[1];
-                    boolean privateMode = false;
-                    final String successMessage;
-                    
-                    if (onOff == null || !(onOff.equalsIgnoreCase("on") || onOff.equalsIgnoreCase("off"))) {
-                        return false;
-                    }
-                    
-                    if (onOff.equalsIgnoreCase("on")) {
-                        privateMode = true;
-                        successMessage = ChatColor.YELLOW + "Enabled private mode.";
-                    } else {
-                        privateMode = false;
-                        successMessage = ChatColor.YELLOW + "Disabled private mode.";
-                    }
-                    
+                } else if (action.equalsIgnoreCase("private")) {
                     Firebase privateModeSettingRef = new Firebase(FriendCraft.firebaseRoot + "/players/" + PlayerManager.sharedInstance.getUUID(currentPlayer) + "/settings/private-mode");
-                    privateModeSettingRef.setValue(Boolean.valueOf(privateMode), new Firebase.CompletionListener() {
-
-                        public void onComplete(FirebaseError error, Firebase ref) {
-                            currentPlayer.sendMessage(successMessage);
+                    
+                    if (args.length > 1) {
+                        String onOff = args[1];
+                        boolean privateMode = false;
+                        final String successMessage;
+                        
+                        if (onOff == null || !(onOff.equalsIgnoreCase("on") || onOff.equalsIgnoreCase("off"))) {
+                            return false;
                         }
-                    });
+                        
+                        if (onOff.equalsIgnoreCase("on")) {
+                            privateMode = true;
+                            successMessage = ChatColor.YELLOW + "Enabled private mode.";
+                        } else {
+                            privateMode = false;
+                            successMessage = ChatColor.YELLOW + "Disabled private mode.";
+                        }
+                        
+                        privateModeSettingRef.setValue(Boolean.valueOf(privateMode), new Firebase.CompletionListener() {
+
+                            public void onComplete(FirebaseError error, Firebase ref) {
+                                currentPlayer.sendMessage(successMessage);
+                            }
+                        });
+                        
+                    } else {
+                        privateModeSettingRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                            public void onCancelled(FirebaseError error) { FriendCraft.error(error.getMessage()); }
+
+                            public void onDataChange(DataSnapshot snapshot) {
+                                Boolean privateMode = (Boolean) snapshot.getValue();
+                                if (privateMode == null) {
+                                    privateMode = Boolean.FALSE;
+                                }
+                                
+                                String onOff = "off";
+                                if (privateMode.booleanValue()) {
+                                    onOff = "on";
+                                }
+                                
+                                currentPlayer.sendMessage(ChatColor.YELLOW + "Private mode is currently " + ChatColor.WHITE + onOff + ChatColor.YELLOW + ".");
+                            }
+                        });
+                    }
                     
                     return true;
-                    
                 }
             }
         }

@@ -30,6 +30,8 @@ public class FriendsList
     private final Firebase friendsListRef;
     private final ChildEventListener friendsListListener;
     
+    private static final int MAX_SIDEBAR_SLOTS = 15; // client limitation
+    
     public FriendsList(Player owner)
     {
         this.owner = owner;
@@ -181,17 +183,65 @@ public class FriendsList
         objective.setDisplayName(ChatColor.YELLOW + "Friends");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
+        List<String> onlineFriends = new ArrayList<String>();
+        List<String> offlineFriends = new ArrayList<String>();
+        
         synchronized(friends) {
             Iterator<Friend> it = friends.iterator();
-            int count = friends.size();
+            
             while (it.hasNext()) {
                 Friend friend = it.next();
                 
                 String displayName = friend.getDisplayName();
                 displayName = displayName.substring(0, Math.min(displayName.length(), 16));
-                objective.getScore(displayName).setScore(count);
-                count--;
+                if (friend.getStatus() == Friend.Status.OFFLINE || friend.getStatus() == Friend.Status.UNKNOWN) {
+                    offlineFriends.add(displayName);
+                } else {
+                    onlineFriends.add(displayName);
+                }
             }
+        }
+        
+        // the total number of slots we have, plus one each for the headers, if present
+        int totalSlots = onlineFriends.size();
+        if (onlineFriends.size() > 0) {
+            totalSlots++;
+        }
+        if (offlineFriends.size() > 0) {
+            totalSlots++;
+        }
+        
+        // the "current slot", not to exceed the maximum number of slots available for the sidebar
+        int slot = Math.min(totalSlots, MAX_SIDEBAR_SLOTS);
+        
+        if (onlineFriends.size() > 0) {
+            String sectionHeader = ChatColor.YELLOW + "Online (" + Integer.toString(onlineFriends.size()) + ")";
+            objective.getScore(sectionHeader.substring(0, Math.min(sectionHeader.length(), 16))).setScore(slot);
+            slot--;
+            
+            Iterator<String> it = onlineFriends.iterator();
+            int count = 0;
+            while(it.hasNext()) {
+                String displayName = it.next();
+                count++;
+                int more = onlineFriends.size() - count;
+                
+                if (((offlineFriends.size() > 0 && slot == 2) || (offlineFriends.size() == 0 && slot == 1)) && more > 0) {
+                    String moreString = "and " + ChatColor.GREEN + Integer.toString(more + 1) + " more";
+                    objective.getScore(moreString.substring(0, Math.min(moreString.length(), 16))).setScore(slot);
+                    slot--;
+                    break;
+                } else {
+                    objective.getScore(displayName).setScore(slot);
+                    slot--;
+                }
+            }
+        }
+        
+        if (offlineFriends.size() > 0) {
+            String sectionHeader = ChatColor.YELLOW + "Offline (" + Integer.toString(offlineFriends.size()) + ")";
+            objective.getScore(sectionHeader.substring(0, Math.min(sectionHeader.length(), 16))).setScore(slot);
+            slot--;
         }
         
         return scoreboard;
