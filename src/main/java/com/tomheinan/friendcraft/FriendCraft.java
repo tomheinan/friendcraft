@@ -164,7 +164,7 @@ public class FriendCraft extends JavaPlugin {
                 MessagingManager.sharedInstance.unpin(uuid);
             }
         });
-
+        
         // disconnect from firebase
         log("Disconnecting from Firebase");
         
