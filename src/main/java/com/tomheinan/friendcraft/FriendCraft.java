@@ -39,11 +39,11 @@ import com.tomheinan.friendcraft.tasks.PlayerCleanupTask;
 import com.tomheinan.friendcraft.tasks.UUIDLookupTask;
 
 public class FriendCraft extends JavaPlugin {
-    //public static String firebaseRoot = "https://friendcraft.firebaseio.com"; // production
-    public static String firebaseRoot = "https://friendcraft-dev.firebaseio.com"; // development
+    public static String firebaseRoot = "https://friendcraft.firebaseio.com"; // production
+    //public static String firebaseRoot = "https://friendcraft-dev.firebaseio.com"; // development
 
-    //public static String authRoot = "https://friendcraft.herokuapp.com"; // production
-    public static String authRoot = "http://localhost:3000"; // development
+    public static String authRoot = "https://friendcraft.herokuapp.com"; // production
+    //public static String authRoot = "http://localhost:3000"; // development
 
     protected static Configuration configuration;
     protected static Logger logger = null;
