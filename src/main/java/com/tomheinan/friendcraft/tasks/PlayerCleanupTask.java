@@ -48,7 +48,7 @@ public class PlayerCleanupTask extends BukkitRunnable
         }
         
         if (count > 0) {
-            FriendCraft.log("Cleaned up " + Integer.toString(count) + " ghost(s");
+            FriendCraft.log("Cleaned up " + Integer.toString(count) + " ghost(s)");
         }
     }
 }
